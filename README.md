@@ -19,7 +19,7 @@
 1. リポジトリをクローンします：
 
    ```
-   git clone https://github.com/takuaki-taku/pickle_attendance.git
+   git clone https://github.com/takuaki-taku/portfolio1.git
    ```
 
 2. 仮想環境を作成し、アクティベートします：
