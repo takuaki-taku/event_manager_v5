@@ -111,49 +111,93 @@
             display: none; 
         }
 
-        /* 言語ドロップダウンメニューのスタイル */
+    
+        /* 言語切り替えボタンの新しいスタイル */
         .language-dropdown {
-            position: relative;
-            display: inline-block;
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
         }
 
         .lang-btn {
-            background: none;
-            color: white;
-            border: none;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(209, 213, 219, 0.4);
+            color: #4B5563;
+            padding: 10px 16px;
+            border-radius: 0.5rem;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.875rem;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 5px;
-            border-radius: 5px;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .lang-btn .chevron {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .language-dropdown:hover .chevron {
+            transform: rotate(180deg);
         }
 
         .lang-menu {
-            display: none;
             position: absolute;
-            background-color: var(--primary-color);
-            border-radius: 5px;
-            margin-top: 10px;
-            min-width: 100px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            bottom: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border-radius: 0.5rem;
+            min-width: 120px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .language-dropdown:hover .lang-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
         .lang-menu a {
-            color: white;
-            padding: 10px;
+            color: #4B5563;
+            padding: 10px 16px;
             text-decoration: none;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s ease;
         }
 
         .lang-menu a:hover {
-            background-color: var(--secondary-color);
+            background-color: rgba(243, 244, 246, 0.8);
         }
 
-        /* ドロップダウン表示 */
-        .language-dropdown:hover .lang-menu {
-            display: block;
+        .lang-menu a:first-child {
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+
+        .lang-menu a:last-child {
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+
+        .flag {
+            font-size: 1em;
+            margin-left: 4px;
         }
 
         @media (max-width: 768px) {
@@ -200,6 +244,84 @@
             .logo-desktop:not(.logo-mobile) {
                 display: none;
             }
+            nav {
+                padding: 5px 0;
+            }
+
+            .hamburger {
+                display: flex;
+                padding: 10px;
+                margin-left: auto;
+            }
+
+            nav .container {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            nav .container > div:not(.hamburger) {
+                display: none;
+                width: 100%;
+            }
+
+            nav .container > div.active {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            nav a {
+                margin-bottom: 10px;
+            }
+
+            .logo-desktop {
+                margin: 0 auto;
+                display: block;
+                width: fit-content;
+            }
+
+            .logo-mobile {
+                display: inline;
+            }
+
+            .logo-desktop:not(.logo-mobile) {
+                display: none;
+            }
+
+            /* モバイル用の言語切り替えボタンのスタイル */
+            .language-dropdown {
+                position: fixed;
+                bottom: 16px;
+                right: 16px;
+            }
+
+            .lang-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-width: auto;
+            }
+
+            .lang-menu {
+                bottom: calc(100% + 6px);
+                right: 0;
+                min-width: 100px;
+            }
+
+            .lang-menu a {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            /* ナビゲーションメニュー内の言語切り替えボタンは非表示 */
+            .nav-right .language-dropdown {
+                display: none;
+            }
+
+            /* 固定位置の言語切り替えボタンは表示 */
+            body > .language-dropdown {
+                display: block;
+            }
+        
         }
     </style>
     {% block extra_head %}{% endblock %}
@@ -229,21 +351,60 @@
                     <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
                     <a href="{{ url_for('register') }}">{{ _('Register') }}</a>
                 {% endif %}
-                <!-- 言語選択ドロップダウン -->
+                <!-- 新しい言語切り替えボタン -->
                 <div class="language-dropdown">
                     <button class="lang-btn">
-                        <i class="fas fa-globe"></i> {{ _('Language') }}
-                        <i class="fas fa-chevron-down"></i>
+                        {% if session.get('lang') == 'en' %}
+                            <span>EN</span>
+                            <span class="flag">🇺🇸</span>
+                        {% else %}
+                            <span>JP</span>
+                            <span class="flag">🇯🇵</span>
+                        {% endif %}
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 9l-7 7-7-7"></path>
+                        </svg>
                     </button>
                     <div class="lang-menu">
-                        <a href="{{ url_for('set_language', lang='en') }}">EN</a>
-                        <a href="{{ url_for('set_language', lang='ja') }}">JP</a>
+                        <a href="{{ url_for('set_language', lang='en') }}">
+                            <span>English</span>
+                            <span class="flag">🇺🇸</span>
+                        </a>
+                        <a href="{{ url_for('set_language', lang='ja') }}">
+                            <span>日本語</span>
+                            <span class="flag">🇯🇵</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- 固定位置の言語切り替えボタン -->
+    <div class="language-dropdown">
+        <button class="lang-btn">
+            {% if session.get('lang') == 'en' %}
+                <span>EN</span>
+                
+            {% else %}
+                <span>JP</span>
+                <span class="flag">🇯🇵</span>
+            {% endif %}
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </button>
+        <div class="lang-menu">
+            <a href="{{ url_for('set_language', lang='en') }}">
+                <span>English</span>
+                
+            </a>
+            <a href="{{ url_for('set_language', lang='ja') }}">
+                <span>日本語</span>
+                <span class="flag">🇯🇵</span>
+            </a>
+        </div>
+    </div>
     <div class="container" style="min-height: calc(100vh - 100px);">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
