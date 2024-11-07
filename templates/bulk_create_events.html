@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}イベント一括作成{% endblock %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport">
+    <title>一括イベント作成</title>
+    <style>
+        #dropzone {
+            width: 100%;
+            height: 100px;
+            border: 2px dashed #ccc;
+            text-align: center;
+            line-height: 100px;
+            font-size: 20px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        #dropzone.active {
+            border-color: #3498db;
+            color: #3498db;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        form {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .instructions {
+            margin-top: 30px;
+            background-color: #e9f7fe;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .instructions h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>{{ _('Bulk Event Creation') }}</h1>
+    <form id="bulkCreateForm">
+        <div>
+            <label for="events">イベント情報（1行に1イベント）:</label>
+            <textarea id="events" name="events" required></textarea>
+            <p>形式: 日付,タイトル,開始時間,終了時間,場所,色<br>
+               例: 2023-06-01,ピックルボール練習,18:00,20:00,市民体育館,#3788d8</p>
+        </div>
+        <button type="button" id="fetchFromSheet">Googleスプレッドシートからデータを取得</button>
+        <button type="submit">イベントを一括作成</button>
+    </form>
+    <div id="message" class="message" style="display: none;"></div>
+
+    <div class="instructions">
+        <h2>{{ _('How to Use') }}</h2>
+        <ol>
+            <li>{{ _('Enter the information for each event on a separate line in the text area.') }}</li>
+            <li>{{ _('For each line, enter information in the order: "Date,Title,Start Time,End Time,Location,Color".') }}</li>
+            <li>{{ _('Use hexadecimal color codes for colors (e.g., #3788d8).') }}</li>
+            <li>{{ _('After entering all event information, click the "Create Events in Bulk" button.') }}</li>
+            <li>{{ _('A success message will be displayed if the creation is successful.') }}</li>
+        </ol>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('fetchFromSheet').addEventListener('click', function() {
+            axios.get('/api/fetch_sheet_data')
+                .then(function(response) {
+                    // レスポンスのデータを取得
+                    const data = response.data.data;
+                    // テキストエリアにデータを設定
+                    document.getElementById('events').value = data;
+                })
+                .catch(function(error) {
+                    console.error('Error fetching data:', error);
+                    alert('Googleスプレッドシートからデータを取得できませんでした。');
+                });
+        });
+
+        document.getElementById('bulkCreateForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const events = document.getElementById('events').value;
+            const messageElement = document.getElementById('message');
+
+            axios.post('/admin/bulk_create_events', { events: events })
+                .then(function (response) {
+                    messageElement.textContent = "{{ _('Events have been created successfully.') }}";
+                    messageElement.className = 'message success';
+                    messageElement.style.display = 'block';
+                    document.getElementById('events').value = '';
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    messageElement.textContent = "{{ _('Failed to create events.') }} " + (error.response ? error.response.data.error : '');
+                    messageElement.className = 'message error';
+                    messageElement.style.display = 'block';
+                });
+        });
+    </script>
+</body>
+</html>
+
+{% endblock %}

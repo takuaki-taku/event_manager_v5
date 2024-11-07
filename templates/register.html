@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}ユーザー登録{% endblock %}
+
+{% block content %}
+<h1>{{ _('User Registration') }}</h1>
+<form method="POST">
+    <label for="username">{{ _('Username:') }}</label>
+    <input type="text" id="username" name="username" required><br><br>
+    <label for="password">{{ _('Password:') }}</label>
+    <input type="password" id="password" name="password" required><br><br>
+    <input type="submit" value="{{ _('Register') }}">
+</form>
+<p>{{ _('Already have an account?') }} <a href="{{ url_for('login') }}">{{ _('Login here') }}</a>.</p>
+{% endblock %}

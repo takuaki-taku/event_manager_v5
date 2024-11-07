@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}管理者ページ{% endblock %}
+
+{% block content %}
+<h1>{{ _('Admin Page') }}</h1>
+<h2>{{ _('Event Management') }}</h2>
+<a href="{{ url_for('bulk_create_events') }}">{{ _('Bulk Event Creation') }}</a>
+
+<h2>{{ _('User Management') }}</h2>
+<table>
+    <thead>
+        <tr>
+            <th>{{ _('Username') }}</th>
+            <th>{{ _('Admin Rights') }}</th>
+            <th>{{ _('Actions') }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ _('Yes') if user.is_admin else _('No') }}</td>
+            <td>
+                <form action="{{ url_for('toggle_admin', user_id=user.id) }}" method="post">
+                    <button type="submit">
+                        {% if user.is_admin %}
+                            {{ _('Remove Admin Rights') }}
+                        {% else %}
+                            {{ _('Grant Admin Rights') }}
+                        {% endif %}
+                    </button>
+                </form>
+                <form action="{{ url_for('delete_user', user_id=user.id) }}" method="post">
+                    <button type="submit">{{ _('Delete') }}</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
