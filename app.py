@@ -34,7 +34,9 @@ app.config["BABEL_DEFAULT_LOCALE"] = "ja"
 babel = Babel(app)
 app.config["DEBUG"] = True
 # データベース接続設定
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace(
+    "postgres://", "postgresql://"
+)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # シークレットキーの設定
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "fallback_secret_key"
@@ -47,6 +49,7 @@ login_manager.login_view = "login"
 
 
 class User(db.Model, UserMixin):
+    __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256))  # カラムのサイズを256に変更
@@ -60,6 +63,7 @@ class User(db.Model, UserMixin):
 
 
 class Event(db.Model):
+    __tablename__ = "event"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     start = db.Column(db.DateTime, nullable=False)
@@ -80,6 +84,7 @@ class Event(db.Model):
 
 
 class Participant(db.Model):
+    __tablename__ = "participant"
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -92,6 +97,11 @@ class Participant(db.Model):
         return (
             f"<Participant {self.user.username} - {self.event.title} ({self.status})>"
         )
+
+
+# アプリケーション起動時にデータベースを初期化
+with app.app_context():
+    db.create_all()
 
 
 @login_manager.user_loader
