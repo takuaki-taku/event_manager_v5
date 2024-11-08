@@ -199,6 +199,15 @@
             font-size: 1em;
             margin-left: 4px;
         }
+        /* ナビゲーションメニュー内の言語切り替えボタンは表示 */
+        .nav-right .language-dropdown {
+                display: block;
+        }
+
+        /* 固定位置の言語切り替えボタンは非表示 */
+        body > .language-dropdown {
+            display: none;
+        }
 
         @media (max-width: 768px) {
             nav {
@@ -321,6 +330,7 @@
             body > .language-dropdown {
                 display: block;
             }
+
         
         }
     </style>
