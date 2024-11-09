@@ -366,7 +366,7 @@
                     <button class="lang-btn">
                         {% if session.get('lang') == 'en' %}
                             <span>EN</span>
-                            <span class="flag">🇺🇸</span>
+                            <span class="flag"></span>
                         {% else %}
                             <span>JP</span>
                             <span class="flag">🇯🇵</span>
@@ -378,7 +378,7 @@
                     <div class="lang-menu">
                         <a href="{{ url_for('set_language', lang='en') }}">
                             <span>English</span>
-                            <span class="flag">🇺🇸</span>
+                            <span class="flag"></span>
                         </a>
                         <a href="{{ url_for('set_language', lang='ja') }}">
                             <span>日本語</span>
