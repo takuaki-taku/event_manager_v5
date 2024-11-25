@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}観覧専用カレンダー{% endblock %}
+
+{% block content %}
+<h1>{{ _('Pickleball Calendar for public') }}</h1>
+<div id="calendar"></div>
+<style>
+    .fc-event-main {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    border-radius: 4px;
+    color: white; /* 文字色を白に設定 */
+}
+
+.fc-event-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.fc-event-time {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var calendarEl = document.getElementById("calendar");
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay"
+        },
+        events: function (fetchInfo, successCallback, failureCallback) {
+            axios.get('/events', {
+                params: {
+                    start: fetchInfo.startStr,
+                    end: fetchInfo.endStr
+                }
+            }).then(function (response) {
+                successCallback(response.data);
+            }).catch(function (error) {
+                failureCallback(error);
+            });
+        },
+        eventContent: function (arg) {
+            // カスタムコンテンツの作成
+            let eventEl = document.createElement("div");
+            eventEl.classList.add("fc-event-main");
+
+            // タイトル
+            let titleEl = document.createElement("div");
+            titleEl.classList.add("fc-event-title");
+            titleEl.textContent = arg.event.title;
+
+            // 時間のフォーマット（例: 9:00〜12:00）
+            let timeEl = document.createElement("div");
+            timeEl.classList.add("fc-event-time");
+            let startTime = arg.event.start.toLocaleTimeString('ja-JP', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            let endTime = arg.event.end.toLocaleTimeString('ja-JP', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            timeEl.textContent = `${startTime}〜${endTime}`;
+
+            // カスタム構造に要素を追加
+            eventEl.appendChild(titleEl);
+            eventEl.appendChild(timeEl);
+
+            return { domNodes: [eventEl] };
+        },
+        eventDidMount: function (info) {
+            // イベントの背景色を設定
+            info.el.style.backgroundColor = info.event.backgroundColor;
+        }
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}

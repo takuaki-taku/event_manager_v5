@@ -28,8 +28,3 @@ services:
 volumes:
   postgres_data:
 
-
-# export DATABASE_URL=postgresql://postgres.tgmneqdmlonphkxynlmj:wYrdam-bubkyd-0napni@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres
-# export POSTGRES_USER=takuakiazuma
-# export POSTGRES_PASSWORD=KyotanabePickle
-# export POSTGRES_DB=event_manager

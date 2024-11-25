@@ -24,33 +24,37 @@ from flask_login import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from functools import wraps
-from dotenv import load_dotenv  # 環境変数を読み込むためのライブラリ
+from dotenv import load_dotenv  # Load environment variables
 
 
-load_dotenv()  # 環境変数をロード
+load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
-app.config["BABEL_DEFAULT_LOCALE"] = "ja"
+app.config["BABEL_DEFAULT_LOCALE"] = "ja"  # Set default language to Japanese
 babel = Babel(app)
 app.config["DEBUG"] = True
-# データベース接続設定
+# Database connection configuration
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# シークレットキーの設定
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+# Secret key configuration
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "fallback_secret_key"
 
 
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)  # Migrate オブジェクトを作成
+migrate = Migrate(app, db)  # Create a Migrate object for database migrations
 login_manager = LoginManager(app)
-login_manager.login_view = "login"
+login_manager.login_view = "login"  # Redirect to login page if not logged in
 
 
 class User(db.Model, UserMixin):
+    """
+    User model for storing user information.
+    """
+
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256))  # カラムのサイズを256に変更
+    password_hash = db.Column(db.String(256))  # Increased column size for password hash
     is_admin = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
@@ -61,6 +65,10 @@ class User(db.Model, UserMixin):
 
 
 class Event(db.Model):
+    """
+    Event model for storing event information.
+    """
+
     __tablename__ = "event"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
@@ -73,15 +81,25 @@ class Event(db.Model):
     created_by_user = db.relationship("User", backref="events")
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the Event object and validate start and end times.
+        """
         super(Event, self).__init__(*args, **kwargs)
         if self.start and self.end and self.start > self.end:
             raise ValueError("終了時間は開始時間より後でなければなりません")
 
     def __repr__(self):
+        """
+        String representation of the Event object.
+        """
         return f"<Event {self.title} ({self.start} - {self.end})>"
 
 
 class Participant(db.Model):
+    """
+    Participant model for storing event participation information.
+    """
+
     __tablename__ = "participant"
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id"), nullable=False)
@@ -92,22 +110,32 @@ class Participant(db.Model):
     user = db.relationship("User", backref="participations")
 
     def __repr__(self):
+        """
+        String representation of the Participant object.
+        """
         return (
             f"<Participant {self.user.username} - {self.event.title} ({self.status})>"
         )
 
 
-# アプリケーション起動時にデータベースを初期化
+# Create database tables if they don't exist
 with app.app_context():
     db.create_all()
 
 
 @login_manager.user_loader
 def load_user(user_id):
+    """
+    Load user object by user ID.
+    """
     return User.query.get(int(user_id))
 
 
 def admin_required(func):
+    """
+    Decorator to restrict access to admin users only.
+    """
+
     @wraps(func)
     def decorated_function(*args, **kwargs):
         if not current_user.is_admin:
@@ -119,6 +147,9 @@ def admin_required(func):
 
 
 def get_locale():
+    """
+    Determine the preferred language for the user.
+    """
     return session.get("lang", request.accept_languages.best_match(["en", "ja"]))
 
 
@@ -127,6 +158,9 @@ babel.init_app(app, locale_selector=get_locale)
 
 @app.route("/api/fetch_sheet_data")
 def fetch_sheet_data():
+    """
+    Fetch data from Google Sheet.
+    """
     try:
         # Use service account credentials
         gc = gspread.service_account(filename="gspread-bulk.json")
@@ -151,18 +185,35 @@ def fetch_sheet_data():
 
 @app.route("/set-language/<lang>")
 def set_language(lang):
+    """
+    Set the language for the session.
+    """
     session["lang"] = lang
     return redirect(request.referrer or url_for("index"))
+
+
+@app.route("/view_calendar")
+def view_calendar():
+    """
+    Just view calender for public
+    """
+    return render_template("view_calendar.html")
 
 
 @app.route("/")
 @login_required
 def index():
+    """
+    Main page of the application.
+    """
     return render_template("index.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """
+    Handle user login.
+    """
     if current_user.is_authenticated:
         return redirect(url_for("index"))
     if request.method == "POST":
@@ -181,6 +232,9 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
+    """
+    Handle user logout.
+    """
     logout_user()
     flash("ログアウトしました。", "success")
     return redirect(url_for("login"))
@@ -188,6 +242,9 @@ def logout():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    """
+    Handle user registration.
+    """
     if current_user.is_authenticated:
         return redirect(url_for("index"))
     if request.method == "POST":
@@ -208,7 +265,6 @@ def register():
 
 
 @app.route("/events", methods=["GET"])
-@login_required
 def get_events():
     start = request.args.get("start")
     end = request.args.get("end")
@@ -217,22 +273,35 @@ def get_events():
         .order_by(Event.start)
         .all()
     )
-    return jsonify(
-        [
-            {
-                "id": event.id,
-                "title": event.title,
-                "start": event.start.isoformat(),
-                "end": event.end.isoformat(),
-                "color": event.color,
-                "location": event.location,
-                "attendingCount": Participant.query.filter_by(
-                    event_id=event.id, status="参加"
-                ).count(),
-            }
-            for event in events
-        ]
-    )
+
+    if current_user.is_authenticated:  # ログイン済みの場合
+        return jsonify(
+            [
+                {
+                    "id": event.id,
+                    "title": event.title,
+                    "start": event.start.isoformat(),
+                    "end": event.end.isoformat(),
+                    "color": event.color,
+                    "location": event.location,
+                    "created_by": event.created_by,  # 追加情報を含む
+                }
+                for event in events
+            ]
+        )
+    else:  # 未ログインの場合
+        return jsonify(
+            [
+                {
+                    "title": event.title,
+                    "start": event.start.isoformat(),
+                    "end": event.end.isoformat(),
+                    "color": event.color,
+                    "location": event.location,
+                }
+                for event in events
+            ]
+        )
 
 
 @app.route("/event", methods=["POST"])

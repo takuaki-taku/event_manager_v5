@@ -14,10 +14,11 @@
 
     <style>
         :root {
-            --primary-color: #333;
+            --primary-color: #19254A; /* ナビゲーションバーの背景色 */
             --secondary-color: #666;
             --background-color: #f5f5f5;
-            --text-color: #333;
+            --text-color: #ffffff; /* ナビゲーションのリンクのテキスト色 */
+            --hover-color: rgba(255, 255, 255, 0.1); /* リンクのホバー時の背景色 */
             --error-color: #8b0000;
             --success-color: #006400;
         }
@@ -38,7 +39,7 @@
         }
 
         nav {
-            background-color: var(--primary-color);
+            background-color: var(--primary-color); /* ナビゲーションバーの色 */
             padding: 10px 0;
         }
 
@@ -49,7 +50,7 @@
         }
 
         nav a {
-            color: white;
+            color: var(--text-color); /* テキスト色を変数から取得 */
             text-decoration: none;
             padding: 5px 10px;
             border-radius: 5px;
@@ -57,7 +58,7 @@
         }
 
         nav a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: var(--hover-color); /* ホバー時の背景色 */
         }
 
         .nav-left, .nav-right {
@@ -111,8 +112,7 @@
             display: none; 
         }
 
-    
-        /* 言語切り替えボタンの新しいスタイル */
+        /* 言語切り替えボタン */
         .language-dropdown {
             position: fixed;
             bottom: 24px;
@@ -143,77 +143,8 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
-        .lang-btn .chevron {
-            width: 14px;
-            height: 14px;
-            transition: transform 0.3s ease;
-        }
-
-        .language-dropdown:hover .chevron {
-            transform: rotate(180deg);
-        }
-
-        .lang-menu {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            right: 0;
-            background: white;
-            border-radius: 0.5rem;
-            min-width: 120px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-        }
-
-        .language-dropdown:hover .lang-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .lang-menu a {
-            color: #4B5563;
-            padding: 10px 16px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.2s ease;
-        }
-
-        .lang-menu a:hover {
-            background-color: rgba(243, 244, 246, 0.8);
-        }
-
-        .lang-menu a:first-child {
-            border-radius: 0.5rem 0.5rem 0 0;
-        }
-
-        .lang-menu a:last-child {
-            border-radius: 0 0 0.5rem 0.5rem;
-        }
-
-        .flag {
-            font-size: 1em;
-            margin-left: 4px;
-        }
-        /* ナビゲーションメニュー内の言語切り替えボタンは表示 */
-        .nav-right .language-dropdown {
-                display: block;
-        }
-
-        /* 固定位置の言語切り替えボタンは非表示 */
-        body > .language-dropdown {
-            display: none;
-        }
-
+        /* モバイル対応 */
         @media (max-width: 768px) {
-            nav {
-                padding: 5px 0;
-            }
-
             .hamburger {
                 display: flex;
                 padding: 10px;
@@ -253,85 +184,6 @@
             .logo-desktop:not(.logo-mobile) {
                 display: none;
             }
-            nav {
-                padding: 5px 0;
-            }
-
-            .hamburger {
-                display: flex;
-                padding: 10px;
-                margin-left: auto;
-            }
-
-            nav .container {
-                flex-direction: column;
-                align-items: flex-end;
-            }
-
-            nav .container > div:not(.hamburger) {
-                display: none;
-                width: 100%;
-            }
-
-            nav .container > div.active {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-            }
-
-            nav a {
-                margin-bottom: 10px;
-            }
-
-            .logo-desktop {
-                margin: 0 auto;
-                display: block;
-                width: fit-content;
-            }
-
-            .logo-mobile {
-                display: inline;
-            }
-
-            .logo-desktop:not(.logo-mobile) {
-                display: none;
-            }
-
-            /* モバイル用の言語切り替えボタンのスタイル */
-            .language-dropdown {
-                position: fixed;
-                bottom: 16px;
-                right: 16px;
-            }
-
-            .lang-btn {
-                padding: 8px 12px;
-                font-size: 0.8rem;
-                min-width: auto;
-            }
-
-            .lang-menu {
-                bottom: calc(100% + 6px);
-                right: 0;
-                min-width: 100px;
-            }
-
-            .lang-menu a {
-                padding: 8px 12px;
-                font-size: 0.8rem;
-            }
-
-            /* ナビゲーションメニュー内の言語切り替えボタンは非表示 */
-            .nav-right .language-dropdown {
-                display: none;
-            }
-
-            /* 固定位置の言語切り替えボタンは表示 */
-            body > .language-dropdown {
-                display: block;
-            }
-
-        
         }
     </style>
     {% block extra_head %}{% endblock %}
@@ -350,71 +202,22 @@
                 <span></span>
             </div>
             <div class="nav-right">
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('index') }}">{{ _('Home') }}</a>
-                    <a href="{{ url_for('collect') }}">{{ _('Participant Summary') }}</a>
-                    {% if current_user.is_admin %}
-                        <a href="{{ url_for('admin_panel') }}">{{ _('Admin Page') }}</a>
-                    {% endif %}
-                    <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
-                    <a href="{{ url_for('register') }}">{{ _('Register') }}</a>
-                {% endif %}
-                <!-- 新しい言語切り替えボタン -->
-                <div class="language-dropdown">
-                    <button class="lang-btn">
-                        {% if session.get('lang') == 'en' %}
-                            <span>EN</span>
-                            <span class="flag"></span>
-                        {% else %}
-                            <span>JP</span>
-                            <span class="flag">🇯🇵</span>
+                {% if request.endpoint != 'view_calendar' %}
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('index') }}">{{ _('Home') }}</a>
+                        <a href="{{ url_for('collect') }}">{{ _('Participant Summary') }}</a>
+                        {% if current_user.is_admin %}
+                            <a href="{{ url_for('admin_panel') }}">{{ _('Admin Page') }}</a>
                         {% endif %}
-                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div class="lang-menu">
-                        <a href="{{ url_for('set_language', lang='en') }}">
-                            <span>English</span>
-                            <span class="flag"></span>
-                        </a>
-                        <a href="{{ url_for('set_language', lang='ja') }}">
-                            <span>日本語</span>
-                            <span class="flag">🇯🇵</span>
-                        </a>
-                    </div>
-                </div>
+                        <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
+                        <a href="{{ url_for('register') }}">{{ _('Register') }}</a>
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
     </nav>
-
-    <!-- 固定位置の言語切り替えボタン -->
-    <div class="language-dropdown">
-        <button class="lang-btn">
-            {% if session.get('lang') == 'en' %}
-                <span>EN</span>
-                
-            {% else %}
-                <span>JP</span>
-                <span class="flag">🇯🇵</span>
-            {% endif %}
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 9l-7 7-7-7"></path>
-            </svg>
-        </button>
-        <div class="lang-menu">
-            <a href="{{ url_for('set_language', lang='en') }}">
-                <span>English</span>
-                
-            </a>
-            <a href="{{ url_for('set_language', lang='ja') }}">
-                <span>日本語</span>
-                <span class="flag">🇯🇵</span>
-            </a>
-        </div>
-    </div>
     <div class="container" style="min-height: calc(100vh - 100px);">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -429,7 +232,7 @@
         {% block content %}{% endblock %}
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
+        document.addEventListener('DOMContentLoaded', () => {
             const hamburger = document.querySelector('.hamburger');
             const navItems = document.querySelectorAll('nav .container > div:not(.hamburger)');
 
