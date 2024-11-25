@@ -39,6 +39,15 @@ msgstr "ログイン"
 msgid "Register"
 msgstr "登録"
 
+msgid "User Registration"
+msgstr "ユーザー登録"
+
+msgid "Username:"
+msgstr "ユーザー名；"
+
+msgid "Password:"
+msgstr "パスワード："
+
 msgid "Language"
 msgstr "言語"
 

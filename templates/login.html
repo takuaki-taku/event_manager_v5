@@ -22,7 +22,12 @@ body.welcome {
   transform: translate(-50%, 0);
   animation: dropBall 1s ease-in forwards, expandBackground 1s 1s ease-in-out forwards;
 }
-
+h1 {
+        font-size: 2em;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
 /* ボールが落ちるアニメーション */
 @keyframes dropBall {
   0% {
@@ -52,8 +57,19 @@ body.welcome {
     background: #19254A; /* 最終的な背景色 */
   }
 }
-
 /* ログインフォームのスタイル */
+.login-form {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(209, 213, 219, 0.4);
+    color: #4B5563;
+    padding: 10px 16px;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
 .welcome .login-form {
   position: relative;
   z-index: 2;
@@ -107,10 +123,9 @@ form input[type="submit"]:hover {
 <body class="welcome">
     <!-- スプラッシュアニメーション -->
     <div class="splash"></div>
-
+    <h1>{{ _('Login') }}</h1>
     <!-- ログインフォーム -->
     <div class="login-form">
-        <h1>{{ _('Login') }}</h1>
         <form method="POST">
             <label for="username">{{ _('Username:') }}</label>
             <input type="text" id="username" name="username" required><br><br>
