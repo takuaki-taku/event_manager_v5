@@ -6,25 +6,30 @@ services:
     ports:
       - "5001:5000"
     environment:
-      - DATABASE_URL=postgresql://takuakiazuma:KyotanabePickle@db/event_manager
-      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL
+      - SECRET_KEY=dpMHadKC23Wt2mG1YKHcSXc5JasG3LOgDpYWqHvztv4=
     depends_on:
       - db
     command: >
       sh -c "flask db upgrade &&
-             gunicorn --bind 0.0.0.0:5000 app:app"
+             gunicorn --bind 0.0.0.0:5000 --workers 2 app:app"
 
   db:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
-      - POSTGRES_USER=takuakiazuma
-      - POSTGRES_PASSWORD=KyotanabePickle
-      - POSTGRES_DB=event_manager
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
     ports:
       - "5432:5432"
 
 volumes:
   postgres_data:
+
+
+# export DATABASE_URL=postgresql://postgres.tgmneqdmlonphkxynlmj:wYrdam-bubkyd-0napni@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres
+# export POSTGRES_USER=takuakiazuma
+# export POSTGRES_PASSWORD=KyotanabePickle
+# export POSTGRES_DB=event_manager

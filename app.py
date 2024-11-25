@@ -34,12 +34,10 @@ app.config["BABEL_DEFAULT_LOCALE"] = "ja"
 babel = Babel(app)
 app.config["DEBUG"] = True
 # データベース接続設定
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL").replace(
-    "postgres://", "postgresql://"
-)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # シークレットキーの設定
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "fallback_secret_key"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 
 db = SQLAlchemy(app)
