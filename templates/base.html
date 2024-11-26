@@ -153,11 +153,7 @@
 
         /* モバイル対応 */
         @media (max-width: 768px) {
-            .username {
-                margin-bottom: 10px;
-                text-align: right;
-                width: 100%;
-            }
+            
 
             .hamburger {
                 display: flex;
@@ -183,6 +179,12 @@
 
             nav a {
                 margin-bottom: 10px;
+            }
+
+            .username {
+                margin-bottom: 10px;
+                text-align: right;
+                width: 100%;
             }
 
             .logo-desktop {
@@ -300,9 +302,20 @@
                 padding: 5px 0;
             }
 
+            .hamburger {
+                display: flex;
+                padding: 10px;
+                margin-left: auto;
+            }
+
             nav .container {
                 flex-direction: column;
                 align-items: flex-end;
+            }
+
+            nav .container > div:not(.hamburger) {
+                display: none;
+                width: 100%;
             }
 
             nav .container > div.active {
@@ -315,21 +328,6 @@
                 margin-bottom: 10px;
             }
 
-            .hamburger {
-                display: flex;
-                padding: 10px;
-                margin-left: auto; /* 親要素nav-mobile内で右寄せにする必要がないため削除 */
-            }
-
-            .nav-mobile { /* nav-mobile要素を追加 */
-                display: flex;
-                flex-direction: column; /* 縦方向に配置 */
-                align-items: flex-end; /* 右寄せ */
-            }
-
-
-
-
             .logo-desktop {
                 margin: 0 auto;
                 display: block;
@@ -337,36 +335,13 @@
             }
 
             .logo-mobile {
-                display: flex;
+                display: inline;
             }
 
             .logo-desktop:not(.logo-mobile) {
                 display: none;
             }
 
-            /* モバイル用の言語切り替えボタンのスタイル */
-            .language-dropdown {
-                position: fixed;
-                bottom: 16px;
-                right: 16px;
-            }
-
-            .lang-btn {
-                padding: 8px 12px;
-                font-size: 0.8rem;
-                min-width: auto;
-            }
-
-            .lang-menu {
-                bottom: calc(100% + 6px);
-                right: 0;
-                min-width: 100px;
-            }
-
-            .lang-menu a {
-                padding: 8px 12px;
-                font-size: 0.8rem;
-            }
 
             /* ナビゲーションメニュー内の言語切り替えボタンは非表示 */
             .nav-right .language-dropdown {
@@ -387,21 +362,20 @@
         <div class="container">
             <div class="nav-left">
                 <a href="{{ url_for('index') }}" class="logo-desktop">{{ _('Kyotanabe Pickleball Club') }}</a>
-            </div>
-            <div class="nav-mobile">
                 <a href="{{ url_for('index') }}" class="logo-mobile">{{ _('Kyoto KPC') }}</a>
-                <span class="username">{{ current_user.username }}さん</span>
+            </div>
 
-                <div class="hamburger">
+                <div class="hamburger" aria-label="Toggle menu">
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
-            </div>
+            
 
             <div class="nav-right">
                 {% if request.endpoint != 'view_calendar' %}
-                    {% if current_user.is_authenticated %}         
+                    {% if current_user.is_authenticated %}     
+                        <span class="username">{{ current_user.username }}さん</span>    
                         <a href="{{ url_for('index') }}">{{ _('Home') }}</a>
                         <a href="{{ url_for('collect') }}">{{ _('Participant Summary') }}</a>
                         {% if current_user.is_admin %}
