@@ -300,20 +300,9 @@
                 padding: 5px 0;
             }
 
-            .hamburger {
-                display: flex;
-                padding: 10px;
-                margin-left: auto;
-            }
-
             nav .container {
                 flex-direction: column;
                 align-items: flex-end;
-            }
-
-            nav .container > div:not(.hamburger) {
-                display: none;
-                width: 100%;
             }
 
             nav .container > div.active {
@@ -326,48 +315,20 @@
                 margin-bottom: 10px;
             }
 
-            .logo-desktop {
-                margin: 0 auto;
-                display: block;
-                width: fit-content;
-            }
-
-            .logo-mobile {
-                display: inline;
-            }
-
-            .logo-desktop:not(.logo-mobile) {
-                display: none;
-            }
-            nav {
-                padding: 5px 0;
-            }
-
             .hamburger {
                 display: flex;
                 padding: 10px;
-                margin-left: auto;
+                margin-left: auto; /* 親要素nav-mobile内で右寄せにする必要がないため削除 */
             }
 
-            nav .container {
-                flex-direction: column;
-                align-items: flex-end;
-            }
-
-            nav .container > div:not(.hamburger) {
-                display: none;
-                width: 100%;
-            }
-
-            nav .container > div.active {
+            .nav-mobile { /* nav-mobile要素を追加 */
                 display: flex;
-                flex-direction: column;
-                align-items: flex-end;
+                flex-direction: column; /* 縦方向に配置 */
+                align-items: flex-end; /* 右寄せ */
             }
 
-            nav a {
-                margin-bottom: 10px;
-            }
+
+
 
             .logo-desktop {
                 margin: 0 auto;
@@ -376,14 +337,11 @@
             }
 
             .logo-mobile {
-                display: inline;
+                display: flex;
             }
 
             .logo-desktop:not(.logo-mobile) {
                 display: none;
-            }
-            .nav-mobile {
-                display: inline;
             }
 
             /* モバイル用の言語切り替えボタンのスタイル */
