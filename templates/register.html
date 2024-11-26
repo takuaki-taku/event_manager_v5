@@ -70,7 +70,7 @@
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
     
-    .welcome .register-form {
+    .register-form {
       position: relative;
       z-index: 2;
       opacity: 0;
@@ -119,9 +119,11 @@
       background-color: #0f1b39;
     }
 </style>
-<body class="welcome">
-<!-- スプラッシュアニメーション -->
-<div class="splash"></div>
+<body>
+<div class="welcome">
+    <!-- スプラッシュアニメーション -->
+    <img class="splash" type="image/png" src="static/kyo.png">
+</div>
 <h1>{{ _('User Registration') }}</h1>
 <div class="register-form">
 <form method="POST">

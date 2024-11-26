@@ -22,11 +22,12 @@ body.welcome {
   transform: translate(-50%, 0);
   animation: dropBall 1s ease-in forwards, expandBackground 1s 1s ease-in-out forwards;
 }
+
 h1 {
-        font-size: 2em;
-        text-align: center;
-        margin-bottom: 20px;
-        color: #333;
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
     }
 /* ボールが落ちるアニメーション */
 @keyframes dropBall {
@@ -70,7 +71,7 @@ h1 {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.welcome .login-form {
+.login-form {
   position: relative;
   z-index: 2;
   opacity: 0;
@@ -120,9 +121,12 @@ form input[type="submit"]:hover {
 }
 </style>
 
-<body class="welcome">
-    <!-- スプラッシュアニメーション -->
-    <div class="splash"></div>
+<body>
+    <div class="welcome">
+        <!-- スプラッシュアニメーション -->
+        <img class="splash" type="image/png" src="static/kyo.png">
+    </div>
+
     <h1>{{ _('Login') }}</h1>
     <!-- ログインフォーム -->
     <div class="login-form">
