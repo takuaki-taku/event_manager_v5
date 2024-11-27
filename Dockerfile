@@ -1,19 +1,14 @@
-FROM python:3.11-slim
+# ベースイメージ
+FROM python:3.10-slim
 
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# requirements.txt をコピー
-COPY requirements.txt ./
-
-# パッケージをインストール
-RUN pip install --no-cache-dir -r requirements.txt
-
-# アプリケーションコードをコピー
+# アプリケーションのルートディレクトリ全体をコピー
 COPY . .
 
-#実際の秘密鍵に置き換えてください
-ENV CYTHON_INSTALL=true
+# 依存関係をインストール
+RUN pip install --no-cache-dir -r requirements.txt
 
-# gunicorn を使用してアプリケーションを実行
-CMD ["gunicorn", "--bind", "0.0.0.0:5001", "app:app"]
+# Flask-Migrate を使用したデータベースのマイグレーションとアプリの起動
+CMD ["sh", "-c", "flask db upgrade && gunicorn --bind 0.0.0.0:5000 --workers 2 app:app"]

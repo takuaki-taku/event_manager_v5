@@ -2,29 +2,12 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "5001:5000"
+      - "5001:5000"  # ホストとコンテナのポートをバインド
     environment:
-      - DATABASE_URL
-      - SECRET_KEY=dpMHadKC23Wt2mG1YKHcSXc5JasG3LOgDpYWqHvztv4=
-    depends_on:
-      - db
-    command: >
-      sh -c "flask db upgrade &&
-             gunicorn --bind 0.0.0.0:5000 --workers 2 app:app"
-
-  db:
-    image: postgres:13
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
-    ports:
-      - "5432:5432"
-
-volumes:
-  postgres_data:
+      DATABASE_URL: "postgresql://postgres.tgmneqdmlonphkxynlmj:wYrdam-bubkyd-0napni@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
+      SECRET_KEY: "dpMHadKC23Wt2mG1YKHcSXc5JasG3LOgDpYWqHvztv4="
 
