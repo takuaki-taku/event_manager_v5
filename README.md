@@ -34,9 +34,9 @@
    ```bash
    git clone https://github.com/takuaki-taku/event_manager_v4.git
   
-  ```markdown project="Event Management App" file="README.md"
-...
-```
+  ...
+  ...markdown project="Event Management App" file="README.md"
+  ...
 
 2. 環境変数の設定:
 
