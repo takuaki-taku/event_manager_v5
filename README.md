@@ -2,131 +2,137 @@
 
 ## 概要
 
-このアプリケーションは、イベントの作成、管理、参加者の追跡を行うためのウェブベースのツールです。Flask、SQLAlchemy、FullCalendar、Google Spreadsheet APIを使用して構築されており、ユーザー認証、イベントのCRUD操作、参加者管理機能、イベントの一括作成機能を提供します。また、日本語と英語の言語設定をサポートしています。
+このアプリケーションは、イベントの作成、管理、参加者の追跡を行うためのウェブベースのツールです。Flask、SQLAlchemy、FullCalendar.js、Google Sheets APIを使用して構築されています。Docker環境で実行され、AWS EC2上にデプロイされています。
 
-## 機能
+## 主な機能
 
-- ユーザー認証（登録、ログイン、ログアウト）
-- イベントの作成、読み取り、更新、削除（CRUD）
-- カレンダーベースのイベント表示
-- イベントへの参加登録と参加状況の管理
-- 管理者ユーザーによるイベント管理
-- Google Spreadsheetを使用したイベントの一括作成
-- 日本語・英語の言語切り替え
+- ユーザー認証システム（登録、ログイン、ログアウト）
+- イベントのCRUD操作（作成、読み取り、更新、削除）
+- インタラクティブなカレンダーインターフェース
+- イベント参加登録と参加状況の管理
+- 管理者専用機能
+- Google Sheets APIを使用したイベントの一括作成
+- 多言語対応（日本語・英語）
+- レスポンシブデザイン
 
-## セットアップ
+## 技術スタック
 
-1. リポジトリをクローンします：
+- バックエンド: Python/Flask
+- データベース: PostgreSQL
+- フロントエンド: HTML, CSS, JavaScript, FullCalendar.js
+- コンテナ化: Docker, docker-compose
+- デプロイ: AWS EC2
+- API統合: Google Sheets API
+- 認証: Flask-Login
+- 多言語対応: Flask-Babel
 
-   ```
-   git clone https://github.com/takuaki-taku/portfolio1.git
-   ```
+## セットアップ手順
 
-2. 仮想環境を作成し、アクティベートします：
+### Dockerを使用した開発環境のセットアップ
 
-   ```
-   python -m venv .venv
-   source .venv/bin/activate  # Windowsの場合: venv\Scripts\activate
-   ```
+1. リポジトリのクローン:
+   ```bash
+   git clone https://github.com/takuaki-taku/event_manager_v4.git
+  
+  ```markdown project="Event Management App" file="README.md"
+...
+```
 
-3. 必要なパッケージをインストールします：
+2. 環境変数の設定:
 
-   ```
-   pip install -r requirements.txt
-   ```
+1. `.env`ファイルを作成し、以下の変数を設定:
+  以下は例です。
 
-4. 環境変数を設定します：
 
-   ```
-   export SECRET_KEY=your_secret_key_here
-   export FLASK_APP=app.py
-   export FLASK_ENV=development
-   export GOOGLE_SHEETS_CREDS_JSON='{"your": "credentials", "json": "here"}'
-   ```
+```plaintext
+SECRET_KEY=your_secret_key
+DATABASE_URL=postgresql://username:password@db:5432/dbname
+GOOGLE_SHEETS_CREDENTIALS=your_credentials_json
+```
 
-   Windowsの場合：
 
-   ```
-   set SECRET_KEY=your_secret_key_here
-   set FLASK_APP=app.py
-   set FLASK_ENV=development
-   set GOOGLE_SHEETS_CREDS_JSON={"your": "credentials", "json": "here"}
-   ```
+3. Dockerコンテナの起動:
 
-5. データベースを初期化します：
+```shellscript
+docker-compose up --build
+```
 
-   ```
-   flask db upgrade
-   ```
 
-6. アプリケーションを実行します：
+4. データベースのマイグレーション:
 
-   ```
-   flask run
-   ```
+```shellscript
+docker-compose exec web flask db upgrade
+```
 
-   アプリケーションは http://localhost:5001 で実行されます。
 
-## 使用方法
+### Google Sheets API設定
 
-1. ブラウザで http://localhost:5001 にアクセスします。
-2. 新規ユーザーの場合は登録を行い、既存ユーザーの場合はログインします。
-3. ホームページでカレンダーを表示し、イベントを閲覧します。
-4. 管理者ユーザーは新しいイベントを作成、編集、削除できます。
-5. 一般ユーザーはイベントの詳細を確認し、参加状況を更新できます。
-6. 管理者ユーザーは「イベント一括作成」ページでGoogle Spreadsheetからイベントデータを取得し、一括でイベントを作成できます。
-7. 画面右上の言語切り替えボタンで、日本語と英語を切り替えることができます。
+1. Google Cloud Consoleで新しいプロジェクトを作成
+2. Google Sheets APIを有効化
+3. サービスアカウントを作成しJSONキーをダウンロード
+4. 環境変数`GOOGLE_SHEETS_CREDENTIALS`にJSONキーの内容を設定
 
-## Google Spreadsheet APIのセットアップ
 
-1. Google Cloud Consoleで新しいプロジェクトを作成します。
-2. Google Sheets APIを有効にします。
-3. サービスアカウントを作成し、JSONキーをダウンロードします。
-4. ダウンロードしたJSONキーの内容を環境変数`GOOGLE_SHEETS_CREDS_JSON`に設定します。
+## 管理者アカウント
 
-## 管理者アカウントの作成
+デフォルトの管理者アカウント:
 
-初期の管理者アカウントを作成するには、以下の手順を実行します：
+- ユーザー名: 東
+- パスワード: tennispickle
 
-1. Pythonインタラクティブシェルを開きます：
 
-   ```
-   python
-   ```
+テスト用一般ユーザーアカウント:
 
-2. 以下のコードを実行して管理者ユーザーを作成します：
+- ユーザー名: sample
+- パスワード: sample
 
-   ```python
-   from app import app, db, User
-   with app.app_context():
-       admin = User(username='admin', is_admin=True)
-       admin.set_password('your_admin_password')
-       db.session.add(admin)
-       db.session.commit()
-   ```
 
-   [仮でアカウントが登録されています。]
-   
-   管理者アカウント
+## データベース構造
 
-   ユーザー名　東
-   パスワード　tennispickle
+主要なテーブル:
 
-   一般ユーザー
+- users: ユーザー情報
+- events: イベント情報
+- participants: 参加者情報
 
-   ユーザー名　sample
-   パスワード　sample
 
-3. これで管理者としてもログインできます。
+## トラブルシューティング
+
+一般的な問題と解決方法:
+
+1. データベース接続エラー:
+
+1. 環境変数`DATABASE_URL`が正しく設定されているか確認
+2. PostgreSQLコンテナが実行中か確認
+
+
+
+2. Google Sheets API接続エラー:
+
+1. 認証情報が正しく設定されているか確認
+2. APIが有効化されているか確認
+
+
+
+## 貢献ガイドライン
+
+1. Issueの作成
+2. ブランチの作成（feature/fix）
+3. 変更の実装
+4. テストの実行
+5. プルリクエストの作成
+
 
 ## ライセンス
 
-このプロジェクトは MIT ライセンスの下で公開されています。詳細については、[LICENSE](LICENSE) ファイルを参照してください。
-
-## 貢献
-
-プロジェクトへの貢献を歓迎します。問題を報告したり、プルリクエストを送信したりする場合は、GitHub リポジトリの Issues セクションをご利用ください。
+MIT License
 
 ## サポート
 
-質問やサポートが必要な場合は、GitHub の Issues セクションに投稿するか、[tatennisku@gmail.com] までメールでお問い合わせください。
+問題や質問がある場合は、以下の連絡先までご連絡ください：
+
+- Email: [tatennisku@gmail.com](mailto:tatennisku@gmail.com)
+- GitHub Issues
+
+
+  
