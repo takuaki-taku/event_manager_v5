@@ -123,9 +123,10 @@ with app.app_context():
     db.create_all()
 
 
-@app.route('/test')
+@app.route("/test")
 def test():
-    return render_template('test.html')
+    return render_template("neon.html")
+
 
 @login_manager.user_loader
 def load_user(user_id):
