@@ -3,6 +3,13 @@
 {% block title %}参加者集計{% endblock %}
 
 {% block content %}
+<div class="welcome">
+    <div class="container-neon">
+        <h1 class="neonText">KPC</h1>
+        <h2 class="neonText">Kyotanabe Pickleball Club</h2>
+    </div>
+</div>
+
 <div class="container mt-5">
     <h1 class="mb-4">{{ _('Participant Summary') }}</h1>
     
@@ -55,9 +62,72 @@
     <p>{{ _('No events found for the selected date.') }}</p>
     {% endif %}
 </div>
-{% endblock %}
+
 
 <style>
+    .neonText {
+      animation: flicker 1.5s infinite alternate;
+      color: #fff;
+      
+    }
+
+    h1 {
+      font-size: 4.2rem;
+    }
+
+    /* Flickering animation */
+    @keyframes flicker {
+      0%,
+      18%,
+      22%,
+      25%,
+      53%,
+      57%,
+      100% {
+        text-shadow: 0 0 4px #fff, 0 0 11px #fff, 0 0 19px #fff, 0 0 40px #0fa,
+          0 0 80px #0fa, 0 0 90px #0fa, 0 0 100px #0fa, 0 0 150px #0fa;
+      }
+
+      20%,
+      24%,
+      55% {
+        text-shadow: none;
+      }
+    }
+    /* Additional styling */
+
+    h2 {
+      font-size: 1.8rem;
+    }
+
+    .container-neon {
+      margin-top: 20vh;
+      opacity: 1; /* 初期状態は完全に不透明 */
+      transition: opacity 0.5s ease-out; /* 0.5秒かけてフェードアウト */
+    }
+
+    .container-neon.hidden {
+      opacity: 0; /* 非表示状態では完全に透明 */
+    }
+
+    .welcome {
+      font-size: 18px;
+      font-family: "Helvetica Neue", sans-serif;
+      background-color: #010a01;
+      opacity: 1; /* 初期状態は完全に不透明 */
+      transition: opacity 0.5s ease-out; /* 0.5秒かけてフェードアウト */
+      
+    }
+    welcome.hidden {
+        opacity: 0;
+
+    }
+
+    h1,
+    h2 {
+      text-align: center;
+      font-weight: 400;
+    }
     .custom-checkbox {
         width: 20px;
         height: 20px;
@@ -84,3 +154,14 @@
         font-size: 12px;
     }
 </style>
+<script>
+    const neonContainer = document.querySelector('.container-neon');
+    const welcome = document.querySelector('body');
+
+    setTimeout(() => {
+      neonContainer.classList.add('hidden');
+      welcome.classList.add('hidden');
+    }, 2000); // 2000ミリ秒 = 2秒後に実行
+</script>
+
+{% endblock %}
