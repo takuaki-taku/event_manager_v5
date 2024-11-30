@@ -37,7 +37,7 @@ app.config["DEBUG"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Secret key configuration
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "fallback_secret_key"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 
 db = SQLAlchemy(app)

@@ -393,11 +393,11 @@
         }
        
         .fc-event-title {
-        flex-grow: 1;
-        opacity: 0.8;
-        white-space: nowrap; /* 時間の折り返しを禁止 */
-        overflow: hidden;
-        text-overflow: ellipsis;
+            flex-grow: 1;
+            opacity: 0.8;
+            white-space: normal; /* 改行を許可 */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .fc-event-time {
@@ -852,16 +852,29 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        function updateParticipation(eventId, status) {
-            axios.post(`/event/${eventId}/participants`, { status: status })
-                .then(function (response) {
-                    fetchParticipants(eventId);
-                    calendar.refetchEvents();
-                })
-                .catch(function (error) {
-                    console.error('Error:', error);
-                    alert('参加状況の更新に失敗しました。');
-                });
+
+        const japaneseStatus = {
+            "Attending": "参加",
+            "Not Attending": "不参加",
+            "Undecided": "未定"
+        };
+
+        
+        function updateParticipation(eventId, statusEnglish) { // 引数を変更
+            const statusJapanese = japaneseStatus[statusEnglish] || statusEnglish; // 英語のステータス値がjapaneseStatusにない場合はそのまま返す
+            axios.post(`/event/${eventId}/participants`, { status: statusJapanese }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(function (response) {
+                fetchParticipants(eventId);
+                calendar.refetchEvents();
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+                alert('参加状況の更新に失敗しました。');
+            });
         }
 
     function showEventDetails(event) {

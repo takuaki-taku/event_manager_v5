@@ -11,3 +11,4 @@ services:
       DATABASE_URL: "postgresql://postgres.tgmneqdmlonphkxynlmj:wYrdam-bubkyd-0napni@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
       SECRET_KEY: "dpMHadKC23Wt2mG1YKHcSXc5JasG3LOgDpYWqHvztv4="
 
+
