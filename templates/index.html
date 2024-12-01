@@ -141,8 +141,6 @@
             background: #19254A; /* 最終的な背景色 */
         }
     }
-
-    
     
     #calendar {
         max-width: 1000px;
@@ -549,7 +547,7 @@
 // アニメーション後にカレンダーを表示
 setTimeout(function() {
     document.getElementById('pickleAnimation').style.display = 'none';
-    document.getElementById('calendarContent').style.display = 'block';
+    document.getElementById('eventModal').style.display = 'block';
     initializeCalendar();
 }, 2000);
 
@@ -622,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             let participantsEl = document.createElement('div')
             participantsEl.classList.add('fc-event-participants')
-            let attendingCount = arg.event.extendedProps.attendingCount || 0
+            let attendingCount = document.getElementById("attendingCount").textContent || 0
             participantsEl.innerHTML = `${attendingCount} ppl`
 
             eventEl.appendChild(titleEl)
@@ -761,7 +759,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     deleteEvent(event.id);
                 }
             };
-        } else {
+        } 
+        else {
             deleteButton.style.display = "none";
         }
 

@@ -52,7 +52,7 @@
       opacity: 0; /* 非表示状態では完全に透明 */
     }
 
-    body {
+    .neonanimation {
       font-size: 18px;
       font-family: "Helvetica Neue", sans-serif;
       background-color: #010a01;
@@ -65,13 +65,13 @@
       font-weight: 400;
     }
   </style>
-  <body>
+<div id="neonanimation" class="pickleneonanimation">
     <div class="container-neon">
       <h1 class="neonText">KPC</h1>
       <h2 class="neonText">Kyotanabe Pickleball Club</h2>
     </div>
 
-    <div>
+    <div id = maincontent>
       <p>hello world</p>
     </div>
 
@@ -82,6 +82,7 @@
 
       setTimeout(() => {
         neonContainer.classList.add('hidden');
+        
       }, 2000); // 2000ミリ秒 = 2秒後に実行
     </script>
   </body>
