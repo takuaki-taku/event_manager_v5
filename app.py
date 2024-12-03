@@ -123,9 +123,10 @@ with app.app_context():
     db.create_all()
 
 
-@app.route('/test')
+@app.route("/test")
 def test():
-    return render_template('test.html')
+    return render_template("neon.html")
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -363,6 +364,11 @@ def get_or_update_participants(id):
     event = Event.query.get(id)
     if not event:
         return jsonify({"error": "Event not found"}), 404
+
+    if request.method == "POST":
+        status = request.json.get("status")
+        print(f"Received status update: {status}")  # ログ出力
+        ...
 
     if request.method == "GET":
         participants = Participant.query.filter_by(event_id=id).all()
