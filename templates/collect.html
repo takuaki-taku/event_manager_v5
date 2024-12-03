@@ -107,7 +107,7 @@
     }
 
     .form-control {
-    width: 100%; /* 入力欄の幅を親要素いっぱいに */
+    width: 50%; /* 入力欄の幅を親要素いっぱいに */
     padding: 0.375rem 0.75rem; /* 入力欄のパディング */
     border: 1px solid #ced4da; /* 入力欄の枠線 */
     border-radius: 0.25rem; /* 入力欄の角丸 */
@@ -123,19 +123,25 @@
     }
 
     .btn-primary:hover {
-    background-color: #0069d9; /* ボタンのホバー時の背景色 */
+    background-color: #388de8; /* ボタンのホバー時の背景色 */
     }
 
-    .card.mb-4 {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(209, 213, 219, 0.4);
-    color: #4B5563;
-    padding: 10px 16px;
-    border-radius: 0.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    .card {
+        background: rgba(255, 255, 255, 0.6);
+        background-color: rgb(221, 221, 221);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(209, 213, 219, 0.4);
+        color: #4B5563;
+        padding: 10px 16px;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
     .card-header {
     padding: 1rem 1.5rem;
@@ -180,7 +186,7 @@
   </div>
 
       <div id = maincontent class="container mt-5">
-        <h1 class="mb-4">{{ _('Participant Summary') }}</h1>
+        <h2 class="mb-4">{{ _('Participant Summary') }}</h1>
         
         <form class="mb-4" method="GET">
             <div class="form-group">
