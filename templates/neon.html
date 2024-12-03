@@ -1,16 +1,18 @@
-<!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% extends "base.html" %}
 
-    <title>Document</title>
-  </head>
+{% block title %}参加者集計{% endblock %}
+
+{% block content %}
   <style>
+
+    body {
+      background-color: black; /* 初期値は黒 */
+      transition: background-color 0.5s ease; /* 背景色の変更に0.5秒のトランジションを適用 */
+    }
+
     .neonText {
       animation: flicker 1.5s infinite alternate;
       color: #fff;
-      
     }
 
     h1 {
@@ -50,6 +52,7 @@
 
     .container-neon.hidden {
       opacity: 0; /* 非表示状態では完全に透明 */
+      display: none;
     }
 
     .neonanimation {
@@ -64,26 +67,103 @@
       text-align: center;
       font-weight: 400;
     }
+    .custom-checkbox {
+        width: 20px;
+        height: 20px;
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        appearance: none; /* ブラウザデフォルトのチェックボックスを隠す */
+    }
+
+    .custom-checkbox:checked {
+        background-color: #4CAF50;
+        border: 1px solid #4CAF50;
+    }
+
+    .custom-checkbox:checked::before {
+        content: "\f00c"; /* FontAwesome のチェックマーク */
+        font-family: FontAwesome;
+        color: white;
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+    }
+
   </style>
-<div id="neonanimation" class="pickleneonanimation">
-    <div class="container-neon">
-      <h1 class="neonText">KPC</h1>
-      <h2 class="neonText">Kyotanabe Pickleball Club</h2>
-    </div>
+<body>
+  <div id="neonanimation" class="pickleneonanimation">
+      <div class="container-neon">
+        <h1 class="neonText">KPC</h1>
+        <h2 class="neonText">Kyotanabe Pickleball Club</h2>
+      </div>
 
-    <div id = maincontent>
-      <p>hello world</p>
-    </div>
-
-    
-      
-    <script>
-      const neonContainer = document.querySelector('.container-neon');
-
-      setTimeout(() => {
-        neonContainer.classList.add('hidden');
+      <div id = maincontent class="container mt-5">
+        <h1 class="mb-4">{{ _('Participant Summary') }}</h1>
         
-      }, 2000); // 2000ミリ秒 = 2秒後に実行
-    </script>
-  </body>
+        <form class="mb-4" method="GET">
+            <div class="form-group">
+                <label for="date">{{ _('Select Date:') }}</label>
+                <input type="date" id="date" name="date" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">{{ _('Summarize') }}</button>
+        </form>
+    
+        {% if events %}
+            {% for event in events %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>{{ event.title }}</h2>
+                        <p>{{ event.start.strftime('%Y-%m-%d %H:%M') }} - {{ event.end.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="card-body">
+                        <h3>{{ _('Attending') }} ({{ event.attending|length }})</h3>
+                        <ul>
+                            {% for participant in event.attending %}
+                                <li>{{ participant.username }} 
+                                    <input type="checkbox" name="paid_{{ participant.id }}" {% if participant.paid %}checked{% endif %} class="custom-checkbox">
+                                </li>
+                            {% endfor %}
+                        </ul>
+    
+                        <h3>{{ _('Not Attending') }} ({{ event.not_attending|length }})</h3>
+                        <ul>
+                            {% for participant in event.not_attending %}
+                                <li>{{ participant.username }} 
+                                    <input type="checkbox" name="paid_{{ participant.id }}" {% if participant.paid %}checked{% endif %} class="custom-checkbox">
+                                </li>
+                            {% endfor %}
+                        </ul>
+    
+                        <h3>{{ _('Undecided') }} ({{ event.undecided|length }})</h3>
+                        <ul>
+                            {% for participant in event.undecided %}
+                                <li>{{ participant.username }} 
+                                    <input type="checkbox" name="paid_{{ participant.id }}" {% if participant.paid %}checked{% endif %} class="custom-checkbox">
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+        <p>{{ _('No events found for the selected date.') }}</p>
+        {% endif %}
+    </div>
+
+  </div>
+</body>
+  <script>
+    const neonContainer = document.querySelector('.container-neon');
+
+    setTimeout(() => {
+      neonContainer.classList.add('hidden');
+      document.body.style.backgroundColor = 'white';
+    }, 2000); // 2000ミリ秒 = 2秒後に実行
+  </script>
+  
 </html>
+{% endblock %}

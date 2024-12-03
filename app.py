@@ -125,7 +125,7 @@ with app.app_context():
 
 @app.route("/test")
 def test():
-    return render_template("sample.html")
+    return render_template("neon.html")
 
 
 @login_manager.user_loader
