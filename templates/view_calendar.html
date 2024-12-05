@@ -1,153 +1,149 @@
-{% extends "base.html" %}
-
-{% block title %}観覧専用カレンダー{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}観覧専用カレンダー{% endblock %} {%
+block content %}
 <h1>{{ _('Pickleball Calendar for public') }}</h1>
 <div id="calendar"></div>
 <style>
-    .fc-event-main {
+  .fc-event-main {
     display: flex;
     flex-direction: column;
     padding: 5px;
     border-radius: 4px;
     color: white; /* 文字色を白に設定 */
-    }
-    .fc-event-main:hover{
-        color: black;
-    }
+  }
+  .fc-event-main:hover {
+    color: black;
+  }
 
-    .fc-event-title {
-        font-weight: bold;
-        font-size: 14px;
-        margin-bottom: 2px;
-    }
+  .fc-event-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
 
-    .fc-event-time {
-        font-size: 12px;
-        opacity: 0.9;
-    }
-    .fc-event-participants {
-        font-size: 0.9em;
-        opacity: 0.8;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
+  .fc-event-time {
+    font-size: 12px;
+    opacity: 0.9;
+  }
+  .fc-event-participants {
+    font-size: 0.9em;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
 
-var calendarEl = document.getElementById('calendar');
-var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,listMonth'
-    },
-    events: function(fetchInfo, successCallback, failureCallback) {
-        axios.get('/events', {
-            params: {
-                start: fetchInfo.startStr,
-                end: fetchInfo.endStr
-            }
-        })
-        .then(async function(response) {
-            const events = response.data;
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,listMonth'
+      },
+      events: function(fetchInfo, successCallback, failureCallback) {
+          axios.get('/events', {
+              params: {
+                  start: fetchInfo.startStr,
+                  end: fetchInfo.endStr
+              }
+          })
+          .then(async function(response) {
+              const events = response.data;
 
-            // 各イベントの参加者データを取得
-            const eventPromises = events.map(event => {
-                return axios.get(`/event/${event.id}/participants`)
-                    .then(participantResponse => {
-                        const participants = participantResponse.data || [];
-                        // status が "参加" の数をカウント
-                        const acceptedParticipants = participants.filter(p => p.status === "参加").length;
-                        event.acceptedCount = acceptedParticipants; // カウントをイベントに追加
-                    })
-                    .catch(error => {
-                        console.error(`Failed to fetch participants for event ${event.id}`, error);
-                        event.participants = []; // エラー時は空リスト
-                    });
-            });
+              // 各イベントの参加者データを取得
+              const eventPromises = events.map(event => {
+                  return axios.get(`/event/${event.id}/participants`)
+                      .then(participantResponse => {
+                          const participants = participantResponse.data || [];
+                          // status が "参加" の数をカウント
+                          const acceptedParticipants = participants.filter(p => p.status === "参加").length;
+                          event.acceptedCount = acceptedParticipants; // カウントをイベントに追加
+                      })
+                      .catch(error => {
+                          console.error(`Failed to fetch participants for event ${event.id}`, error);
+                          event.participants = []; // エラー時は空リスト
+                      });
+              });
 
-            // 全てのAPIコールが完了するまで待つ
-            await Promise.all(eventPromises);
-            successCallback(events);
-        })
-        .catch(function(error) {
-            failureCallback(error);
-        });
-    },
+              // 全てのAPIコールが完了するまで待つ
+              await Promise.all(eventPromises);
+              successCallback(events);
+          })
+          .catch(function(error) {
+              failureCallback(error);
+          });
+      },
 
-    editable: {% if current_user.is_admin %}true{% else %}false{% endif %},
-    selectable: {% if current_user.is_admin %}true{% else %}false{% endif %},
-    select: function(info) {
-        {% if current_user.is_admin %}
-        openModal(null, info.start, info.end);
-        {% endif %}
-    },
-    eventClick: function(info) {
-        openModal(info.event);
-    },
-    
-    dateClick: function(info) {
-        {% if current_user.is_admin %}
-        openModal(null, info.date);
-        {% endif %}
-    },
-    eventDrop: function(info) {
-        {% if current_user.is_admin %}
-        updateEvent(info.event);
-        {% else %}
-        info.revert();
-        {% endif %}
-    },
-    eventResize: function(info) {
-        {% if current_user.is_admin %}
-        updateEvent(info.event);
-        {% else %}
-        info.revert();
-        {% endif %}
-    },
+      editable: {% if current_user.is_admin %}true{% else %}false{% endif %},
+      selectable: {% if current_user.is_admin %}true{% else %}false{% endif %},
+      select: function(info) {
+          {% if current_user.is_admin %}
+          openModal(null, info.start, info.end);
+          {% endif %}
+      },
+      eventClick: function(info) {
+          openModal(info.event);
+      },
 
-
-    eventContent: function(arg) {
-        let eventEl = document.createElement('div')
-        eventEl.classList.add('fc-event-main')
-
-        let titleEl = document.createElement('div')
-        titleEl.classList.add('fc-event-title')
-        titleEl.innerHTML = arg.event.title
-
-        let timeEl = document.createElement('div')
-        timeEl.classList.add('fc-event-time')
-        let startTime = arg.event.start.toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit', hour12: false})
-        let endTime = arg.event.end.toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit', hour12: false})
-        timeEl.innerHTML = `${startTime} - ${endTime}`
+      dateClick: function(info) {
+          {% if current_user.is_admin %}
+          openModal(null, info.date);
+          {% endif %}
+      },
+      eventDrop: function(info) {
+          {% if current_user.is_admin %}
+          updateEvent(info.event);
+          {% else %}
+          info.revert();
+          {% endif %}
+      },
+      eventResize: function(info) {
+          {% if current_user.is_admin %}
+          updateEvent(info.event);
+          {% else %}
+          info.revert();
+          {% endif %}
+      },
 
 
-        let participantsEl = document.createElement('div');
-        participantsEl.classList.add('fc-event-participants');
-        let acceptedCount = arg.event.extendedProps.acceptedCount || 0;
-        participantsEl.innerHTML = `${acceptedCount}ppl`;
+      eventContent: function(arg) {
+          let eventEl = document.createElement('div')
+          eventEl.classList.add('fc-event-main')
 
-        
-        eventEl.appendChild(titleEl)
-        eventEl.appendChild(timeEl)
-        eventEl.appendChild(participantsEl)
+          let titleEl = document.createElement('div')
+          titleEl.classList.add('fc-event-title')
+          titleEl.innerHTML = arg.event.title
 
-        return { domNodes: [eventEl] }
-    },
+          let timeEl = document.createElement('div')
+          timeEl.classList.add('fc-event-time')
+          let startTime = arg.event.start.toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit', hour12: false})
+          let endTime = arg.event.end.toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit', hour12: false})
+          timeEl.innerHTML = `${startTime} - ${endTime}`
 
-    eventDidMount: function(info) {
-        info.el.style.backgroundColor = info.event.backgroundColor;
-    }
 
-});
-calendar.render();
+          let participantsEl = document.createElement('div');
+          participantsEl.classList.add('fc-event-participants');
+          let acceptedCount = arg.event.extendedProps.acceptedCount || 0;
+          participantsEl.innerHTML = `${acceptedCount}ppl`;
 
-});
+
+          eventEl.appendChild(titleEl)
+          eventEl.appendChild(timeEl)
+          eventEl.appendChild(participantsEl)
+
+          return { domNodes: [eventEl] }
+      },
+
+      eventDidMount: function(info) {
+          info.el.style.backgroundColor = info.event.backgroundColor;
+      }
+
+  });
+  calendar.render();
+
+  });
 </script>
 {% endblock %}
