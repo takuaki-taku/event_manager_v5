@@ -373,7 +373,6 @@ def get_or_update_participants(id):
     if request.method == "POST":
         status = request.json.get("status")
         print(f"Received status update: {status}")  # ログ出力
-        ...
 
     if request.method == "GET":
         participants = Participant.query.filter_by(event_id=id).all()
@@ -516,6 +515,22 @@ def bulk_create_events():
                             400,
                         )
 
+                    # 重複チェック: 同じタイトル、日時、場所のイベントがすでに存在するか
+                    duplicate_event = Event.query.filter_by(
+                        title=title, start=start, end=end, location=location
+                    ).first()
+
+                    if duplicate_event:
+                        return (
+                            jsonify(
+                                {
+                                    "error": f"Duplicate event detected: An event with title '{title}' at '{location}' during '{start}' to '{end}' already exists."
+                                }
+                            ),
+                            400,
+                        )
+
+                    # イベントオブジェクトの作成
                     event = Event(
                         title=title,
                         start=start,
@@ -526,6 +541,7 @@ def bulk_create_events():
                     )
                     events.append(event)
 
+            # データベースに一括保存
             db.session.bulk_save_objects(events)
             db.session.commit()
 
