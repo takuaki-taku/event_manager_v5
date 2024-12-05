@@ -177,8 +177,13 @@ def fetch_sheet_data():
         # Get values from A5 to F25
         values = ws.get_values("A5:F25")
 
-        # Process the data
-        data = [", ".join(row) for row in values if row]  # Skip empty rows
+        # Process the data: Skip rows that start with an empty or whitespace string
+        data = [
+            ", ".join(row)
+            for row in values
+            if row
+            and row[0].strip()  # Check if first cell is non-empty and non-whitespace
+        ]
         data_str = "\n".join(data)
 
         return jsonify({"data": data_str})
