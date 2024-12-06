@@ -93,6 +93,11 @@
         font-size: 12px;
     }
 
+    /* 初期非表示 */
+    #maincontent {
+    display: none; /* 初期状態で非表示 */
+    }
+
     .mb-4 {
     margin-bottom: 1rem; /* マージンボトム */
     }
@@ -246,6 +251,7 @@
     setTimeout(() => {
       neonContainer.classList.add('hidden');
       document.body.style.backgroundColor = 'white';
+      document.getElementById('maincontent').style.display = 'block';
     }, 2000); // 2000ミリ秒 = 2秒後に実行
   </script>
   

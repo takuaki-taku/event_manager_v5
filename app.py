@@ -499,6 +499,13 @@ def bulk_create_events():
                     )
                     start = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
                     end = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
+
+                    # 開始時間と終了時間の検証
+                    if end <= start:
+                        return jsonify({
+                            "error": f"Invalid time range for event '{title}': End time must be after start time."
+                        }), 400
+
                     event = Event(
                         title=title,
                         start=start,
