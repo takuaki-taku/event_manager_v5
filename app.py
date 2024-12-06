@@ -1,4 +1,12 @@
+"""This module provides functions for managing events in a calendar application.
+
+It includes functions for creating, updating, deleting, and retrieving events.
+The module uses a database to store event information.
+"""
+
 import os
+from datetime import datetime
+from functools import wraps
 import gspread
 from flask import (
     Flask,
@@ -22,8 +30,7 @@ from flask_login import (
     current_user,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-from functools import wraps
+
 from dotenv import load_dotenv  # Load environment variables
 
 
@@ -58,9 +65,21 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
+        """
+        パスワードをハッシュ化して保存します。
+        """
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        """
+        渡されたパスワードが、保存されているハッシュ化されたパスワードと一致するかどうかを確認します。
+
+        Args:
+            password: チェックするパスワード
+
+        Returns:
+            パスワードが一致する場合はTrue、そうでない場合はFalse
+        """
         return check_password_hash(self.password_hash, password)
 
 
@@ -125,6 +144,7 @@ with app.app_context():
 
 @app.route("/test")
 def test():
+    """just for test"""
     return render_template("neon.html")
 
 
@@ -177,14 +197,19 @@ def fetch_sheet_data():
         # Get values from A5 to F25
         values = ws.get_values("A5:F25")
 
-        # Process the data
-        data = [", ".join(row) for row in values if row]  # Skip empty rows
+        # Process the data: Skip rows that start with an empty or whitespace string
+        data = [
+            ", ".join(row)
+            for row in values
+            if row
+            and row[0].strip()  # Check if first cell is non-empty and non-whitespace
+        ]
         data_str = "\n".join(data)
 
         return jsonify({"data": data_str})
 
     except Exception as e:
-        app.logger.error(f"シートデータの取得中にエラーが発生しました: {str(e)}")
+        app.logger.error("シートデータの取得中にエラーが発生しました: %s", str(e))
         return jsonify({"error": str(e)}), 500
 
 
@@ -271,6 +296,7 @@ def register():
 
 @app.route("/events", methods=["GET"])
 def get_events():
+    """get event"""
     start = request.args.get("start")
     end = request.args.get("end")
     events = (
@@ -313,6 +339,7 @@ def get_events():
 @login_required
 @admin_required
 def add_or_update_event():
+    """add event"""
     event_data = request.json
     if "id" in event_data:
         event = Event.query.get(event_data["id"])
@@ -340,6 +367,7 @@ def add_or_update_event():
 @login_required
 @admin_required
 def delete_event(id):
+    """Deletes an event."""
     event = Event.query.get(id)
     if not event:
         return jsonify({"error": "Event not found"}), 404
@@ -361,6 +389,7 @@ def delete_event(id):
 @app.route("/event/<int:id>/participants", methods=["GET", "POST"])
 @login_required
 def get_or_update_participants(id):
+    """get or update participants"""
     event = Event.query.get(id)
     if not event:
         return jsonify({"error": "Event not found"}), 404
@@ -368,7 +397,6 @@ def get_or_update_participants(id):
     if request.method == "POST":
         status = request.json.get("status")
         print(f"Received status update: {status}")  # ログ出力
-        ...
 
     if request.method == "GET":
         participants = Participant.query.filter_by(event_id=id).all()
@@ -406,6 +434,7 @@ def get_or_update_participants(id):
 @login_required
 @admin_required
 def delete_participant(id, participant_id):
+    """delete participant"""
     participant = Participant.query.get(participant_id)
     if participant and participant.event_id == id:
         db.session.delete(participant)
@@ -423,6 +452,7 @@ def delete_participant(id, participant_id):
 @login_required
 @admin_required
 def admin_panel():
+    """admin panel"""
     users = User.query.all()
     return render_template("admin.html", users=users)
 
@@ -431,6 +461,7 @@ def admin_panel():
 @login_required
 @admin_required
 def toggle_admin(user_id):
+    """toggle adminn"""
     user = User.query.get(user_id)
     if user:
         user.is_admin = not user.is_admin
@@ -448,6 +479,7 @@ def toggle_admin(user_id):
 @login_required
 @admin_required
 def delete_user(user_id):
+    """delete user"""
     user = User.query.get(user_id)
     if user:
         # ユーザーに関連付けられたイベントの参加者を削除
@@ -467,6 +499,7 @@ def delete_user(user_id):
 @app.route("/collect")
 @login_required
 def collect():
+    """make collect list"""
     date_str = request.args.get("date")
     if date_str:
         date = datetime.strptime(date_str, "%Y-%m-%d").date()
@@ -488,17 +521,45 @@ def collect():
 @login_required
 @admin_required
 def bulk_create_events():
+    """bulk create events"""
     if request.method == "POST":
         try:
             events_data = request.json.get("events").split("\n")
-            events = []
-            for event_line in events_data:
+        except (KeyError, AttributeError):
+            app.logger.error("リクエストデータに 'events' キーがありません")
+            return jsonify({"error": "Invalid request data"}), 400
+        except Exception as e:
+            app.logger.error(
+                f"リクエストデータの処理中にエラーが発生しました: {str(e)}"
+            )
+            return jsonify({"error": "Failed to process request data"}), 400
+
+        events = []
+        for event_line in events_data:
+            try:
                 if event_line.strip():  # 空行をスキップ
                     date, title, start_time, end_time, location, color = (
                         event_line.strip().split(",")
                     )
                     start = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
                     end = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
+
+                    # 開始時間と終了時間の検証
+                    if end <= start:
+                        raise ValueError(
+                            f"Invalid time range for event '{title}': End time must be after start time."
+                        )
+
+                    # 重複チェック: 同じタイトル、日時、場所のイベントがすでに存在するか
+                    duplicate_event = Event.query.filter_by(
+                        title=title, start=start, end=end, location=location
+                    ).first()
+                    if duplicate_event:
+                        raise ValueError(
+                            f"Duplicate event detected: An event with title '{title}' at '{location}' during '{start}' to '{end}' already exists."
+                        )
+
+                    # イベントオブジェクトの作成
                     event = Event(
                         title=title,
                         start=start,
@@ -508,14 +569,28 @@ def bulk_create_events():
                         created_by=current_user.id,
                     )
                     events.append(event)
+            except ValueError as e:
+                app.logger.error(f"イベントデータの検証エラー: {str(e)}")
+                return jsonify({"error": str(e)}), 400
+            except TypeError as e:
+                app.logger.error(f"イベントデータの型エラー: {str(e)}")
+                return jsonify({"error": "Invalid event data type"}), 400
+            except Exception as e:
+                app.logger.exception(
+                    f"イベントデータの処理中に予期せぬエラーが発生しました: {str(e)}"
+                )  # exceptionを使うことでスタックトレースもログに出力
+                return jsonify({"error": "Failed to process event data"}), 500
 
+        try:
+            # データベースに一括保存
             db.session.bulk_save_objects(events)
             db.session.commit()
-
             return jsonify({"message": "Events created successfully"}), 201
         except Exception as e:
             db.session.rollback()
-            app.logger.error(f"Error creating events: {str(e)}")
-            return jsonify({"error": str(e)}), 400
+            app.logger.exception(
+                f"データベースへの保存中にエラーが発生しました: {str(e)}"
+            )  # スタックトレースを出力
+            return jsonify({"error": "Failed to save events to database"}), 500
 
     return render_template("bulk_create_events.html")
