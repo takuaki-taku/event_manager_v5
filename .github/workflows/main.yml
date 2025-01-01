@@ -1,21 +1,36 @@
-name: Test scp-action
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [main]
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@master
+        uses: actions/checkout@v3
 
-      - name: Deploy to EC2 (test)
-        uses: appleboy/scp-action@master
+      - name: SSH to EC2 and Deploy
+        uses: appleboy/ssh-action@v0.1.6 # v2が解決しない問題への一時的な対応
         with:
-          host: ${{ secrets.EC2_HOST }} # シークレットは設定不要 (テスト用)
-          username: ubuntu # 適当なユーザー名でOK (テスト用)
-          key: ${{ secrets.EC2_PRIVATE_KEY }} # シークレットは設定不要 (テスト用)
-          source: docker-compose.yml # 存在しないファイルでもOK (テスト用)
-          target: /home/ubuntu/app
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu # ルートディレクトリを指定
+            docker-compose down # 古いコンテナを停止
+            docker-compose build --no-cache # イメージをビルド（変更があった場合のみ）
+            docker-compose up -d # コンテナを起動
+
+      - name: Health Check
+        uses: appleboy/wait-for-http@v1.0.1
+        with:
+          url: http://52.68.119.64:5001/view_calendar
+          max_attempts: 10
+          retry_interval: 10
+          timeout: 60 # タイムアウトを60秒に設定 (必要に応じて調整)
+
+      - name: Deployment Complete
+        run: echo "Deployment to EC2 complete!"
