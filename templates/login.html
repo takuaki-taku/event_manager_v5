@@ -1,143 +1,149 @@
-{% extends "base.html" %}
-
-{% block title %}ログイン{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}ログイン{% endblock %} {% block
+content %}
 <style>
-/* 初期設定 */
-body.welcome {
-  background: #ffffff; /* 初期背景色は白 */
-  overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-}
+  /* 初期設定 */
+  body.welcome {
+    background: #ffffff; /* 初期背景色は白 */
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
 
-.welcome .splash {
-  height: 0;
-  width: 0;
-  position: fixed;
-  left: 50%;
-  top: -10%; /* ボールが上から落ちる位置 */
-  background: #19254A; /* ボールの色 */
-  border-radius: 50%;
-  transform: translate(-50%, 0);
-  animation: dropBall 1s ease-in forwards, expandBackground 1s 1s ease-in-out forwards;
-}
+  .welcome .splash {
+    height: 0;
+    width: 0;
+    position: fixed;
+    left: 50%;
+    top: -10%; /* ボールが上から落ちる位置 */
+    background: #19254a; /* ボールの色 */
+    border-radius: 50%;
+    transform: translate(-50%, 0);
+    animation: dropBall 1s ease-in forwards,
+      expandBackground 1s 1s ease-in-out forwards;
+  }
 
-h1 {
+  h1 {
     font-size: 2em;
     text-align: center;
     margin-bottom: 20px;
     color: #333;
+  }
+  /* ボールが落ちるアニメーション */
+  @keyframes dropBall {
+    0% {
+      top: -10%;
+      height: 50px;
+      width: 50px;
     }
-/* ボールが落ちるアニメーション */
-@keyframes dropBall {
-  0% {
-    top: -10%;
-    height: 50px;
-    width: 50px;
+    50% {
+      top: 50%; /* 画面中央に到達 */
+    }
+    100% {
+      top: 50%;
+      height: 80px;
+      width: 80px;
+    }
   }
-  50% {
-    top: 50%; /* 画面中央に到達 */
-  }
-  100% {
-    top: 50%;
-    height: 80px;
-    width: 80px;
-  }
-}
 
-/* ボールが広がり背景に変化 */
-@keyframes expandBackground {
-  0% {
-    height: 80px;
-    width: 80px;
+  /* ボールが広がり背景に変化 */
+  @keyframes expandBackground {
+    0% {
+      height: 80px;
+      width: 80px;
+    }
+    100% {
+      height: 200vmax; /* 画面全体を覆うサイズ */
+      width: 200vmax;
+      background: #19254a; /* 最終的な背景色 */
+    }
   }
-  100% {
-    height: 200vmax; /* 画面全体を覆うサイズ */
-    width: 200vmax;
-    background: #19254A; /* 最終的な背景色 */
-  }
-}
-/* ログインフォームのスタイル */
-.login-form {
+  /* ログインフォームのスタイル */
+  .login-form {
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(209, 213, 219, 0.4);
-    color: #4B5563;
+    color: #4b5563;
     padding: 10px 16px;
     border-radius: 0.5rem;
     transition: all 0.3s ease;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
+  }
 
-.login-form {
-  position: relative;
-  z-index: 2;
-  opacity: 0;
-  animation: fadeIn 1s 2s ease-in forwards;
-}
-
-@keyframes fadeIn {
-  0% {
+  .login-form {
+    position: relative;
+    z-index: 2;
     opacity: 0;
+    animation: fadeIn 1s 2s ease-in forwards;
   }
-  100% {
-    opacity: 1;
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
-}
 
-form {
-  margin-top: 20px;
-  text-align: center;
-}
+  form {
+    margin-top: 20px;
+    text-align: center;
+  }
 
-form label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
+  form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
 
-form input[type="text"],
-form input[type="password"] {
-  width: 80%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
+  form input[type="text"],
+  form input[type="password"] {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
 
-form input[type="submit"] {
-  background-color: #19254A;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-}
+  form input[type="submit"] {
+    background-color: #19254a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 
-form input[type="submit"]:hover {
-  background-color: #0f1b39;
-}
+  form input[type="submit"]:hover {
+    background-color: #0f1b39;
+  }
 </style>
 
 <body>
-    <div class="welcome">
-        <!-- スプラッシュアニメーション -->
-        <img class="splash" type="image/png" src="static/kyo.png">
-    </div>
+  <div class="welcome">
+    <!-- スプラッシュアニメーション -->
+    <img class="splash" type="image/png" src="static/kyo.png" />
+  </div>
 
-    <h1>{{ _('Login') }}</h1>
-    <!-- ログインフォーム -->
-    <div class="login-form">
-        <form method="POST">
-            <label for="username">{{ _('Username:') }}</label>
-            <input type="text" id="username" name="username" required><br><br>
-            <label for="password">{{ _('Password:') }}</label>
-            <input type="password" id="password" name="password" required><br><br>
-            <input type="submit" value="{{ _('Login') }}">
-        </form>
-        <p>{{ _("Don't have an account?") }} <a href="{{ url_for('register') }}">{{ _('Register here') }}</a>.</p>
-    </div>
+  <h1>{{ _('Login') }}</h1>
+  <!-- ログインフォーム -->
+  <div class="login-form">
+    <form method="POST">
+      <label for="username">{{ _('Username:') }}</label>
+      <input type="text" id="username" name="username" required /><br /><br />
+      <label for="password">{{ _('Password:') }}</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+      /><br /><br />
+      <input type="submit" value="{{ _('Login') }}" />
+    </form>
+    <p>
+      {{ _("Don't have an account?") }}
+      <a href="{{ url_for('register') }}">{{ _('Register here') }}</a>.
+    </p>
+  </div>
 </body>
 {% endblock %}
