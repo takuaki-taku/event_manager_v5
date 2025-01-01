@@ -24,7 +24,7 @@ jobs:
         run: ls -l docker-compose.yml .dockerignore # より詳細な確認
 
       - name: Deploy docker-compose.yml to EC2
-        uses: appleboy/scp-action@v3 # バージョンを固定
+        uses: appleboy/scp-action@v2 # バージョンを固定
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
