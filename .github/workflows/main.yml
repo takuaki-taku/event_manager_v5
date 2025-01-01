@@ -17,16 +17,13 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      - name: Build Docker images (optional, if needed)
-        run: docker-compose build
-
       - name: Deploy to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          files: docker-compose.yml .dockerignore
+          source: docker-compose.yml .dockerignore # コピーするファイルを指定
           target: /home/ubuntu/app
 
       - name: SSH to EC2 and deploy
