@@ -11,8 +11,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
       - name: Build Docker images (optional, if needed)
-        run: docker-compose build # 必要に応じてdocker-compose buildを実行
+        run: docker-compose build
 
       - name: Deploy to EC2
         uses: appleboy/scp-action@master
@@ -20,8 +26,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          files: docker-compose.yml .dockerignore # 必要に応じて他のファイルも追加
-          target: /home/ubuntu/app # EC2上の適切なディレクトリに変更
+          files: docker-compose.yml .dockerignore
+          target: /home/ubuntu/app
 
       - name: SSH to EC2 and deploy
         uses: appleboy/ssh-action@master
@@ -30,7 +36,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/app # docker-compose.ymlがあるディレクトリに移動
-            docker-compose down || true # 既存のコンテナを停止・削除
-            docker-compose up -d --build # コンテナを起動。--buildオプションでイメージをビルド
-            docker image prune -af # 不要なイメージを削除
+            cd /home/ubuntu/app
+            docker-compose down || true
+            docker-compose up -d --build
+            docker image prune -af
