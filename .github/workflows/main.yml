@@ -10,11 +10,11 @@ jobs:
 
 
 
-     # BranchをCheckout
+     
      - name: Checkout
        uses: actions/checkout@v2
 
-     # AWS CLIをインストールする
+     
      - name: AWS CLI install
        run: |
          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -22,7 +22,7 @@ jobs:
          sudo ./aws/install --update
          aws --version
 
-     # AWS CLIに認証情報を設定をする
+     
      - name: AWS set Credentials
        uses: aws-actions/configure-aws-credentials@v1
        with:
@@ -31,7 +31,7 @@ jobs:
          aws-region: ap-northeast-1
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@master # または特定のバージョンを指定
+        uses: appleboy/ssh-action@master 
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
@@ -39,5 +39,5 @@ jobs:
           script: |
             cd /home/ubuntu/event_manager_v5
             git pull origin main
-            docker-compose up --build -d # -d オプションでバックグラウンド実行
+            docker-compose up --build -d 
         
