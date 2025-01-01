@@ -10,10 +10,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
 
       - name: SSH to EC2 and Deploy
-        uses: appleboy/ssh-action@v0.1.6 # v2が解決しない問題への一時的な対応
+        uses: appleboy/ssh-action@master # v2が解決しない問題への一時的な対応
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
@@ -25,7 +25,7 @@ jobs:
             docker-compose up -d # コンテナを起動
 
       - name: Health Check
-        uses: appleboy/wait-for-http@v1.0.1
+        uses: appleboy/wait-for-http@master
         with:
           url: http://52.68.119.64:5001/view_calendar
           max_attempts: 10
