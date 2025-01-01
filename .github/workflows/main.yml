@@ -1,0 +1,28 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main] # mainブランチへのプッシュで実行
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # OIDCプロバイダを使用するために必要
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::253490766377:role/EC2-event_manager # 作成したIAMロールのARN
+          aws-region: ap-northeast-1 # AWSリージョン
+
+      - name: Start Session and Upload
+        run: |
+          aws ssm start-session --target YOUR_EC2_INSTANCE_ID --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"host":["localhost"],"localPort":["8080"],"portNumber":["80"],"reason":["Port forwarding through SSM"]}'
+          # rsyncを使ってファイルをアップロード (例)
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -p 8080" ./dist/ ec2-user@localhost:/var/www/html/ # アップロードするディレクトリとEC2のパスを指定
+          aws ssm terminate-session --session-id $(aws ssm describe-sessions --filters "Name=Target,Values=i-01296297a435a5eb2" --query "Sessions[].SessionId" --output text)
