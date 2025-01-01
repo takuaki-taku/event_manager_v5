@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy to EC2 with Docker Compose
 
 on:
   push:
@@ -11,30 +11,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build Docker image
-        run: docker build -t your-image-name . # Dockerfileがあるディレクトリで実行
-
-      - name: Save Docker image
-        run: docker save your-image-name > image.tar
+      - name: Build Docker images (optional, if needed)
+        run: docker-compose build # 必要に応じてdocker-compose buildを実行
 
       - name: Deploy to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu # EC2のユーザー名に合わせて変更
+          username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          files: image.tar
-          target: /tmp
+          files: docker-compose.yml .dockerignore # 必要に応じて他のファイルも追加
+          target: /home/ubuntu/app # EC2上の適切なディレクトリに変更
 
       - name: SSH to EC2 and deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu # EC2のユーザー名に合わせて変更
+          username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            docker load -i /tmp/image.tar
-            docker stop your-container-name || true
-            docker rm your-container-name || true
-            docker run -d -p 80:5000 --name your-container-name your-image-name
-            rm /tmp/image.tar # 一時ファイルを削除
+            cd /home/ubuntu/app # docker-compose.ymlがあるディレクトリに移動
+            docker-compose down || true # 既存のコンテナを停止・削除
+            docker-compose up -d --build # コンテナを起動。--buildオプションでイメージをビルド
+            docker image prune -af # 不要なイメージを削除
