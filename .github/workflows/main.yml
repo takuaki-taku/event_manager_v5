@@ -47,7 +47,7 @@ jobs:
           debug: true # デバッグログを有効化
 
       - name: SSH to EC2 and deploy
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v2
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
