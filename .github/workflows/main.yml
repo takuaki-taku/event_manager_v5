@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
 
       - name: Deploy to EC2 (test)
-        uses: appleboy/scp-action@v2
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }} # シークレットは設定不要 (テスト用)
           username: ubuntu # 適当なユーザー名でOK (テスト用)
