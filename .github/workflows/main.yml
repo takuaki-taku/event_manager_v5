@@ -8,8 +8,9 @@ jobs:
    runs-on: ubuntu-latest
    steps:
 
-
-
+     - name: Public IP Install
+       id: ip
+       uses: haythem/public-ip@v1.2
      
      - name: Checkout
        uses: actions/checkout@v2
