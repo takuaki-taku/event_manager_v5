@@ -1,0 +1,21 @@
+name: Test scp-action
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2 (test)
+        uses: appleboy/scp-action@v2
+        with:
+          host: ${{ secrets.EC2_HOST }} # シークレットは設定不要 (テスト用)
+          username: ubuntu # 適当なユーザー名でOK (テスト用)
+          key: ${{ secrets.EC2_PRIVATE_KEY }} # シークレットは設定不要 (テスト用)
+          source: docker-compose.yml # 存在しないファイルでもOK (テスト用)
+          target: /home/ubuntu/app
