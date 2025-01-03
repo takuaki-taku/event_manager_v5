@@ -30,6 +30,14 @@ jobs:
           sudo apt-get install -y python3-pip
           pip3 install -r requirements.txt
           pip3 install pytest flask
+
+      - name: Set SQLAlchemy Database URI
+        run: |
+          echo "SQLALCHEMY_DATABASE_URI=sqlite:///:memory:" >> $GITHUB_ENV
+      - name: Run Database Migrations # マイグレーション実行ステップを追加
+        run: |
+          flask db upgrade # Flask-Migrateを使用している場合
+          # または alembic upgrade head など、使用しているマイグレーションツールに合わせて変更
           
       - name: Run pytest tests
         if: steps.check_changes.outputs.has_changes == 'true'
