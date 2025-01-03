@@ -24,8 +24,6 @@ def create_app():
     app.config["BABEL_DEFAULT_TIMEZONE"] = "Asia/Tokyo"  # タイムゾーンを設定
     app.config["SESSION_PERMANENT"] = False
     app.config["STATIC_FOLDER"] = os.path.join(app.root_path, "static")
-    app.config["SQLALCHEMY_DATABASE_URI"] = "DATABASE_URL"  # 本番環境用のURIも設定
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
     app.db = db
