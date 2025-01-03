@@ -6,12 +6,13 @@ from app import db  # アプリケーションのデータベース
 
 @pytest.fixture
 def app():
-    """テスト用のアプリケーション設定"""
-    application.config["TESTING"] = True  # テストモードを有効化
-    application.config["SQLALCHEMY_DATABASE_URI"] = (
-        "sqlite:///:memory:"  # テスト用SQLiteデータベース
+    application.config.update(
+        {
+            "TESTING": True,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",  # ここで完全に上書き
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        }
     )
-    application.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     with application.app_context():
         db.create_all()  # テスト用データベースを作成
         yield application
