@@ -31,13 +31,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-def get_locale():
-    """
-    Determine the preferred language for the user.
-    """
-    return session.get("lang", request.accept_languages.best_match(["en", "ja"]))
-
-
 @bp.route("/api/fetch_sheet_data")
 def fetch_sheet_data():
     """
@@ -72,11 +65,13 @@ def fetch_sheet_data():
 
 @bp.route("/set-language/<lang>")
 def set_language(lang):
-    """
-    Set the language for the session.
-    """
     session["lang"] = lang
-    return redirect(request.referrer or url_for("index"))
+    # リファラーがない場合の処理を追加
+    referrer = request.referrer
+    if referrer:
+        return redirect(referrer)
+    else:
+        return redirect(url_for("main.index"))  # または適切なデフォルトページ
 
 
 @bp.route("/view_calendar")
