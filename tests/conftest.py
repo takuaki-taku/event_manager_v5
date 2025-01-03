@@ -9,7 +9,7 @@ def app():
     """テスト用のアプリケーション設定"""
     application.config["TESTING"] = True  # テストモードを有効化
     application.config["SQLALCHEMY_DATABASE_URI"] = (
-        "sqlite:///:memory:"  # テスト用SQLiteデータベース
+        "sqlite:///./test.db"  # テスト用SQLiteデータベース
     )
     application.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     with application.app_context():
