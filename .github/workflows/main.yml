@@ -24,6 +24,9 @@ jobs:
             echo "::set-output name=has_changes::false"
           fi
 
+      - name: Install pytest
+        run: sudo apt-get update && sudo apt-get install -y python3-pip && pip3 install pytest
+
       - name: Run pytest tests
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
