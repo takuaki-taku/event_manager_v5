@@ -11,6 +11,7 @@ def app():
             "TESTING": True,
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",  # ここで完全に上書き
             "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+            "SERVER_NAME": "localhost",  # SERVER_NAMEを設定
         }
     )
     with application.app_context():
