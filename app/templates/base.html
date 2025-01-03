@@ -279,8 +279,8 @@
     <nav>
         <div class="container">
             <div class="nav-left">
-                <a href="{{ url_for('index') }}" class="logo-desktop">{{ _('Kyotanabe Pickleball Club') }}</a>
-                <a href="{{ url_for('index') }}" class="logo-mobile">{{ _('Kyoto KPC') }}</a>
+                <a href="{{ url_for('main.index') }}" class="logo-desktop">{{ _('Kyotanabe Pickleball Club') }}</a>
+                <a href="{{ url_for('main.index') }}" class="logo-mobile">{{ _('Kyoto KPC') }}</a>
             </div>
 
             <div class="hamburger" aria-label="Toggle menu">
@@ -293,15 +293,15 @@
                 {% if request.endpoint != 'view_calendar' %}
                     {% if current_user.is_authenticated %}     
                         <span class="username">{{ current_user.username }}さん</span>    
-                        <a href="{{ url_for('index') }}">{{ _('Home') }}</a>
-                        <a href="{{ url_for('collect') }}">{{ _('Participant Summary') }}</a>
+                        <a href="{{ url_for('main.index') }}">{{ _('Home') }}</a>
+                        <a href="{{ url_for('main.collect') }}">{{ _('Participant Summary') }}</a>
                         {% if current_user.is_admin %}
-                            <a href="{{ url_for('admin_panel') }}">{{ _('Admin Page') }}</a>
+                            <a href="{{ url_for('admin.admin_panel') }}">{{ _('Admin Page') }}</a>
                         {% endif %}
-                        <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
+                        <a href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a>
                     {% else %}
-                        <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
-                        <a href="{{ url_for('register') }}">{{ _('Register') }}</a>
+                        <a href="{{ url_for('auth.login') }}">{{ _('Login') }}</a>
+                        <a href="{{ url_for('auth.register') }}">{{ _('Register') }}</a>
                     {% endif %}
                 {% endif %}
                  <!-- 新しい言語切り替えボタン -->
@@ -319,11 +319,11 @@
                         </svg>
                     </button>
                     <div class="lang-menu">
-                        <a href="{{ url_for('set_language', lang='en') }}">
+                        <a href="{{ url_for('main.set_language', lang='en') }}">
                             <span>English</span>
                             <span class="flag"></span>
                         </a>
-                        <a href="{{ url_for('set_language', lang='ja') }}">
+                        <a href="{{ url_for('main.set_language', lang='ja') }}">
                             <span>日本語</span>
                             <span class="flag">🇯🇵</span>
                         </a>
@@ -347,11 +347,11 @@
             </svg>
         </button>
         <div class="lang-menu">
-            <a href="{{ url_for('set_language', lang='en') }}">
+            <a href="{{ url_for('main.set_language', lang='en') }}">
                 <span>English</span>
                 
             </a>
-            <a href="{{ url_for('set_language', lang='ja') }}">
+            <a href="{{ url_for('main.set_language', lang='ja') }}">
                 <span>日本語</span>
                 <span class="flag">🇯🇵</span>
             </a>
