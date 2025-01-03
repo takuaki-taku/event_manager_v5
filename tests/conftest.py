@@ -1,3 +1,4 @@
+import os
 import pytest
 from wsgi import application  # Flaskアプリをインポート
 from app.models.user import User  # ユーザーモデルのパスを調整してください
