@@ -26,6 +26,7 @@ def create_app():
     app.config["STATIC_FOLDER"] = os.path.join(app.root_path, "static")
 
     db.init_app(app)
+    app.db = db
     migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"  # ログインページのエンドポイントを指定

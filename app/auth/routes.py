@@ -13,7 +13,8 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):
+
+        if isinstance(user, User) and user.check_password(password):
             login_user(user)
             flash("ログインしました。", "success")
             return redirect(url_for("main.index"))
