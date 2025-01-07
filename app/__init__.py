@@ -1,10 +1,9 @@
-import os
 from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_babel import Babel
-
+from app.config import Config
 
 db = SQLAlchemy()
 
@@ -15,16 +14,7 @@ babel = Babel()
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object("config.Config")
-    app.config["SECRET_KEY"] = "your_secret_key"  # 必ず適切な秘密鍵に置き換えてください
-    app.config["SESSION_TYPE"] = (
-        "filesystem"  # 開発用。本番環境では'redis'か'memcached'に変更
-    )
-    app.config["BABEL_DEFAULT_LOCALE"] = "ja"  # デフォルトのロケールを日本語に設定
-    app.config["BABEL_DEFAULT_TIMEZONE"] = "Asia/Tokyo"  # タイムゾーンを設定
-    app.config["SESSION_PERMANENT"] = False
-    app.config["STATIC_FOLDER"] = os.path.join(app.root_path, "static")
-
+    app.config.from_object(Config)
     db.init_app(app)
     app.db = db
     migrate.init_app(app, db)
