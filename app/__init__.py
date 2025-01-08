@@ -37,6 +37,7 @@ def create_app():
     from app.admin import bp as admin_bp
 
     app.register_blueprint(admin_bp)
+    print(f"app.config['TESTING']: {app.config['TESTING']}")
 
     return app
 
