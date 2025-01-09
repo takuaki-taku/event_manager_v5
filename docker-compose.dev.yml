@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_USER: postgres # 初期化スクリプト実行時はpostgresユーザーを使用
+      POSTGRES_DB: test_db # データベース名もここで設定
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

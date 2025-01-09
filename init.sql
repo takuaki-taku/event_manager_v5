@@ -1,11 +1,22 @@
--- データベースが既に存在する場合は何もしない
-SELECT 'CREATE DATABASE event_manager'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'event_manager');
+DO $$
+BEGIN
+    CREATE USER test_user WITH PASSWORD 'test_password';
+EXCEPTION WHEN DUPLICATE_OBJECT THEN
+    RAISE NOTICE 'User test_user already exists.';
+END $$;
 
--- event_managerデータベースに接続
-\c event_manager;
+DO $$
+BEGIN
+    CREATE DATABASE test_db;
+EXCEPTION WHEN DUPLICATE_DATABASE THEN
+    RAISE NOTICE 'Database test_db already exists.';
+END $$;
 
--- テーブルが存在しない場合のみ作成
+ALTER DATABASE test_db OWNER TO test_user;
+GRANT ALL PRIVILEGES ON DATABASE test_db TO test_user;
+
+\c test_db -- データベースを切り替え
+
 CREATE TABLE IF NOT EXISTS "user" (
     id SERIAL PRIMARY KEY,
     username VARCHAR(80) UNIQUE NOT NULL,
