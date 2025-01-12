@@ -1,9 +1,10 @@
+import os
 from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_babel import Babel
-from app.config import Config
+from app.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 
 db = SQLAlchemy()
 
@@ -12,9 +13,22 @@ migrate = Migrate()
 babel = Babel()
 
 
-def create_app():
+def create_app(config_name=None):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    # config_nameが指定されていない場合は、環境変数FLASK_ENVを参照
+    if config_name is None:
+        config_name = os.environ.get("FLASK_ENV", "development")
+
+    # config_nameに基づいてconfigクラスを選択
+    if config_name == "development":
+        app.config.from_object(DevelopmentConfig)
+    elif config_name == "testing":
+        app.config.from_object(TestingConfig)
+    elif config_name == "production":
+        app.config.from_object(ProductionConfig)
+    else:  # config_nameが不正な場合はデフォルトのConfigを使用
+        app.config.from_object(Config)
+
     db.init_app(app)
     app.db = db
     migrate.init_app(app, db)
@@ -37,7 +51,6 @@ def create_app():
     from app.admin import bp as admin_bp
 
     app.register_blueprint(admin_bp)
-    print(f"app.config['TESTING']: {app.config['TESTING']}")
 
     return app
 

@@ -1,22 +1,15 @@
-import os
 import pytest
-from wsgi import application
+from app import create_app  # create_appをインポート
 from app import db
 
 
 @pytest.fixture(scope="session")
 def app():
-    application.config.update(
-        {
-            "TESTING": True,
-            "SQLALCHEMY_DATABASE_URI": os.environ.get("TEST_DATABASE_URL"),
-            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-            "SERVER_NAME": "localhost",
-        }
-    )
-    with application.app_context():
+    app = create_app(config_name="testing")  # config_nameを指定
+    app.config["SERVER_NAME"] = "localhost"  # SERVER_NAME を設定
+    with app.app_context():
         db.create_all()
-        yield application
+        yield app
         db.session.remove()
         db.drop_all()
 
