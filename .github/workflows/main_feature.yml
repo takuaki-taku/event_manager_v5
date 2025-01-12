@@ -26,6 +26,7 @@ jobs:
       - name: Wait for PostgreSQL
         run: |
           sleep 10
+          docker logs event_manager_v5-db-1
       - name: Run tests
         env:
           TEST_DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_db
