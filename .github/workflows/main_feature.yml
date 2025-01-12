@@ -25,7 +25,7 @@ jobs:
           docker compose -f docker-compose.dev.yml up -d
       - name: Check Container Status
         run: |
-          docker pss
+          docker ps
           docker ps -a --filter name=event_manager_v5-db-1
           docker logs event_manager_v5-db-1
           docker inspect --format='{{json .State.Health}}' event_manager_v5-db-1
