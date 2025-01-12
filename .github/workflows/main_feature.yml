@@ -26,13 +26,7 @@ jobs:
       - name: Wait for PostgreSQL
         run: |
           sleep 10
-          CONTAINER_ID=$(docker ps -q --filter name=event_manager_v5-db-1)
-          while [ -z "$CONTAINER_ID" ]; do
-            echo "PostgreSQL container not found, waiting..."
-            sleep 5
-            CONTAINER_ID=$(docker ps -q --filter name=event_manager_v5-db-1)
-          done
-          docker exec "$CONTAINER_ID" pg_isready -U postgres
+          docker logs event_manager_v5-db-1
       - name: Run tests
         env:
           TEST_DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_db
