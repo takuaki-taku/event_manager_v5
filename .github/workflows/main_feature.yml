@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Docker
-        uses: docker/setup-docker@v2
+        uses: docker/setup-docker@v3 # v3 に変更
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
