@@ -3,6 +3,7 @@ services:
   db:
     image: postgres:15
     environment:
+      CONTAINER_NAME: event_manager_v5-db-1
       POSTGRES_PASSWORD: test_password
       POSTGRES_USER: postgres # 初期化スクリプト実行時はpostgresユーザーを使用
       POSTGRES_DB: test_db # データベース名もここで設定
