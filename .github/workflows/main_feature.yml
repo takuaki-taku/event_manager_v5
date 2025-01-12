@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set up Docker
         uses: docker/setup-docker@v3 # v3 に変更
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3 # setup-buildx を追加
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
