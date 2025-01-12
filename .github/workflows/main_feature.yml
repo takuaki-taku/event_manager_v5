@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Docker
+        uses: docker/setup-docker@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2 # バージョンを正しく修正
+        uses: docker/setup-buildx-action@v3
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -27,10 +29,11 @@ jobs:
         run: |
           sleep 10
           CONTAINER_ID=$(docker ps -q --filter ancestor=postgres:15)
-          if [ -z "$CONTAINER_ID" ]; then
-            echo "PostgreSQL container not found"
-            exit 1
-          fi
+          while [ -z "$CONTAINER_ID" ]; do
+            echo "PostgreSQL container not found, waiting..."
+            sleep 5
+            CONTAINER_ID=$(docker ps -q --filter ancestor=postgres:15)
+          done
           docker exec "$CONTAINER_ID" pg_isready -U postgres
       - name: Run tests
         env:
