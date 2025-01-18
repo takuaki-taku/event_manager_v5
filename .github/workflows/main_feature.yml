@@ -8,10 +8,24 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15 # バージョンをdocker-composeに合わせました
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        volumes: # init.sqlのマウント
+          - ./init.sql:/docker-entrypoint-initdb.d/init.sql # docker-composeと同様のマウント
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2 # バージョンを正しく修正
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -20,31 +34,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Start Docker Compose
-        run: |
-          docker compose -f docker-compose.dev.yml up -d
-      - name: Check Container Status
-        run: |
-          docker ps
-          docker ps -a --filter name=event_manager_v5-db-1
-          docker logs event_manager_v5-db-1
-          docker inspect --format='{{json .State.Health}}' event_manager_v5-db-1
-      - name: Wait for PostgreSQL
-        run: |
-          sleep 10
-          CONTAINER_ID=$(docker ps -q --filter name=event_manager_v5-db-1)
-          while [ -z "$CONTAINER_ID" ]; do
-            echo "PostgreSQL container not found, waiting..."
-            sleep 5
-            CONTAINER_ID=$(docker ps -q --filter name=event_manager_v5-db-1)
-          done
-          docker exec "$CONTAINER_ID" pg_isready -U postgres
+          pip install psycopg2-binary
       - name: Run tests
         env:
           TEST_DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_db
         run: |
           pytest
-      - name: Stop Docker Compose
-        if: always()
-        run: |
-          docker compose -f docker-compose.dev.yml down
