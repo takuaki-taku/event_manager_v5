@@ -29,11 +29,14 @@ jobs:
         run: |
           sudo sed -i "s/^local   all             postgres                                peer$/local   all             postgres                                md5/" /etc/postgresql/*/main/pg_hba.conf
           sudo systemctl reload postgresql
-      - name: Run init.sql # init.sqlの実行のみ
+      - name: Set Postgres Password # postgresユーザーのパスワードを設定
         run: |
-          psql -U postgres -f init.sql
+          sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+      - name: Run init.sql
+        run: |
+          PGPASSWORD=postgres psql -U postgres -f init.sql # パスワードを指定
       - name: Run tests
         env:
-          TEST_DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db # 接続ユーザーを変更
+          TEST_DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
         run: |
           pytest
