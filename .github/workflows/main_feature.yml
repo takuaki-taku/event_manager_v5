@@ -27,7 +27,6 @@ jobs:
         run: sudo systemctl start postgresql
       - name: Configure PostgreSQL
         run: |
-          sudo -u postgres createuser postgres # postgresユーザーの作成(既に存在する場合は不要)
           sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'test_password';" # パスワード設定
           sudo -u postgres createdb test_db # データベース作成
       - name: Run init.sql
