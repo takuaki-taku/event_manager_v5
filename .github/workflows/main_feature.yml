@@ -23,12 +23,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql postgresql-contrib
-      - name: Start PostgreSQL Service # PostgreSQLサービスの起動
+      - name: Start PostgreSQL Service
         run: sudo systemctl start postgresql
+      - name: Configure PostgreSQL Authentication # 認証設定の変更
+        run: |
+          sudo sed -i "s/^local   all             postgres                                peer$/local   all             postgres                                md5/" /etc/postgresql/*/main/pg_hba.conf
+          sudo systemctl reload postgresql
       - name: Configure PostgreSQL
         run: |
-          sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'test_password';" # パスワード設定
-          sudo -u postgres createdb test_db # データベース作成
+          sudo -u postgres createuser postgres
+          sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'test_password';"
+          sudo -u postgres createdb test_db
       - name: Run init.sql
         run: |
           psql -U postgres -d test_db -f init.sql
