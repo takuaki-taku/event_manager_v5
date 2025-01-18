@@ -8,22 +8,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15 # バージョンをdocker-composeに合わせました
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
-        volumes: # init.sqlのマウント
-          - ./init.sql:/docker-entrypoint-initdb.d/init.sql # docker-composeと同様のマウント
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
@@ -35,6 +19,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install psycopg2-binary
+      - name: Install PostgreSQL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql postgresql-contrib
+      - name: Configure PostgreSQL
+        run: |
+          sudo -u postgres createuser postgres # postgresユーザーの作成(既に存在する場合は不要)
+          sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'test_password';" # パスワード設定
+          sudo -u postgres createdb test_db # データベース作成
+      - name: Run init.sql
+        run: |
+          psql -U postgres -d test_db -f init.sql
       - name: Run tests
         env:
           TEST_DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_db
