@@ -23,6 +23,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql postgresql-contrib
+      - name: Start PostgreSQL Service # PostgreSQLサービスの起動
+        run: sudo systemctl start postgresql
       - name: Configure PostgreSQL
         run: |
           sudo -u postgres createuser postgres # postgresユーザーの作成(既に存在する場合は不要)
