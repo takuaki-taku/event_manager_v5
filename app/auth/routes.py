@@ -46,6 +46,10 @@ def register():
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
+        # ユーザーIDが1の場合、管理者権限を付与
+        if new_user.id == 1:
+            new_user.is_admin = True
+            db.session.commit()
         flash("登録が完了しました。", "success")
         return redirect(url_for("auth.login"))
     return render_template("auth/register.html")
