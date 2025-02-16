@@ -1,148 +1,23 @@
-"""This module provides functions for managing events in a calendar application.
-
-It includes functions for creating, updating, deleting, and retrieving events.
-The module uses a database to store event information.
-"""
-
-import os
-from datetime import datetime
-from functools import wraps
-import gspread
 from flask import (
-    Flask,
     render_template,
     request,
     redirect,
     url_for,
-    jsonify,
-    flash,
     session,
+    jsonify,  # jsonify をインポート
 )
-from flask_babel import Babel
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_login import (
-    LoginManager,
-    UserMixin,
-    login_user,
-    login_required,
-    logout_user,
-    current_user,
-)
-from werkzeug.security import generate_password_hash, check_password_hash
-
-from dotenv import load_dotenv  # Load environment variables
+from flask_login import login_required, current_user
+from app import db
+from app.main import bp
+from app.models import Event, Participant, User
+from app import login_manager  # login_managerをインポート
+from app.decorators import admin_required  # または適切なパス
+from datetime import datetime
+import gspread
+from google.oauth2.service_account import Credentials
 
 
-load_dotenv()  # Load environment variables from .env file
-
-app = Flask(__name__)
-app.config["BABEL_DEFAULT_LOCALE"] = "ja"  # Set default language to Japanese
-babel = Babel(app)
-app.config["DEBUG"] = True
-# Database connection configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# Secret key configuration
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "fallback_secret_key"
-
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)  # Create a Migrate object for database migrations
-login_manager = LoginManager(app)
-login_manager.login_view = "login"  # Redirect to login page if not logged in
-
-
-class User(db.Model, UserMixin):
-    """
-    User model for storing user information.
-    """
-
-    __tablename__ = "user"
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256))  # Increased column size for password hash
-    is_admin = db.Column(db.Boolean, default=False)
-
-    def set_password(self, password):
-        """
-        パスワードをハッシュ化して保存します。
-        """
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        """
-        渡されたパスワードが、保存されているハッシュ化されたパスワードと一致するかどうかを確認します。
-
-        Args:
-            password: チェックするパスワード
-
-        Returns:
-            パスワードが一致する場合はTrue、そうでない場合はFalse
-        """
-        return check_password_hash(self.password_hash, password)
-
-
-class Event(db.Model):
-    """
-    Event model for storing event information.
-    """
-
-    __tablename__ = "event"
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    start = db.Column(db.DateTime, nullable=False)
-    end = db.Column(db.DateTime, nullable=False)
-    location = db.Column(db.String(255))
-    color = db.Column(db.String(20), default="#3788d8")
-    created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-
-    created_by_user = db.relationship("User", backref="events")
-
-    def __init__(self, *args, **kwargs):
-        """
-        Initialize the Event object and validate start and end times.
-        """
-        super(Event, self).__init__(*args, **kwargs)
-        if self.start and self.end and self.start > self.end:
-            raise ValueError("終了時間は開始時間より後でなければなりません")
-
-    def __repr__(self):
-        """
-        String representation of the Event object.
-        """
-        return f"<Event {self.title} ({self.start} - {self.end})>"
-
-
-class Participant(db.Model):
-    """
-    Participant model for storing event participation information.
-    """
-
-    __tablename__ = "participant"
-    id = db.Column(db.Integer, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey("event.id"), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    status = db.Column(db.String(20), default="未定")
-
-    event = db.relationship("Event", backref="participants")
-    user = db.relationship("User", backref="participations")
-
-    def __repr__(self):
-        """
-        String representation of the Participant object.
-        """
-        return (
-            f"<Participant {self.user.username} - {self.event.title} ({self.status})>"
-        )
-
-
-# Create database tables if they don't exist
-with app.app_context():
-    db.create_all()
-
-
-@app.route("/test")
+@bp.route("/test")
 def test():
     """just for test"""
     return render_template("neon.html")
@@ -156,32 +31,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-def admin_required(func):
-    """
-    Decorator to restrict access to admin users only.
-    """
-
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_admin:
-            flash("管理者権限が必要です。", "error")
-            return redirect(url_for("login"))
-        return func(*args, **kwargs)
-
-    return decorated_function
-
-
-def get_locale():
-    """
-    Determine the preferred language for the user.
-    """
-    return session.get("lang", request.accept_languages.best_match(["en", "ja"]))
-
-
-babel.init_app(app, locale_selector=get_locale)
-
-
-@app.route("/api/fetch_sheet_data")
+@bp.route("/api/fetch_sheet_data")
 def fetch_sheet_data():
     """
     Fetch data from Google Sheet.
@@ -210,20 +60,22 @@ def fetch_sheet_data():
         return jsonify({"data": data_str})
 
     except Exception as e:
-        app.logger.error("シートデータの取得中にエラーが発生しました: %s", str(e))
+        bp.logger.error("シートデータの取得中にエラーが発生しました: %s", str(e))
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/set-language/<lang>")
+@bp.route("/set-language/<lang>")
 def set_language(lang):
-    """
-    Set the language for the session.
-    """
     session["lang"] = lang
-    return redirect(request.referrer or url_for("index"))
+    # リファラーがない場合の処理を追加
+    referrer = request.referrer
+    if referrer:
+        return redirect(referrer)
+    else:
+        return redirect(url_for("main.index"))  # または適切なデフォルトページ
 
 
-@app.route("/view_calendar")
+@bp.route("/view_calendar")
 def view_calendar():
     """
     Just view calender for public
@@ -231,7 +83,7 @@ def view_calendar():
     return render_template("view_calendar.html")
 
 
-@app.route("/")
+@bp.route("/")
 @login_required
 def index():
     """
@@ -240,62 +92,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    """
-    Handle user login.
-    """
-    if current_user.is_authenticated:
-        return redirect(url_for("index"))
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):
-            login_user(user)
-            flash("ログインしました。", "success")
-            return redirect(url_for("index"))
-        else:
-            flash("ユーザー名またはパスワードが間違っています。", "error")
-    return render_template("login.html")
-
-
-@app.route("/logout")
-@login_required
-def logout():
-    """
-    Handle user logout.
-    """
-    logout_user()
-    flash("ログアウトしました。", "success")
-    return redirect(url_for("login"))
-
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    """
-    Handle user registration.
-    """
-    if current_user.is_authenticated:
-        return redirect(url_for("index"))
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        # email = request.form.get("email")  # この行を削除
-        user = User.query.filter_by(username=username).first()
-        if user:
-            flash("このユーザー名はすでに使用されています。", "error")
-            return redirect(url_for("register"))
-        new_user = User(username=username)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash("登録が完了しました。", "success")
-        return redirect(url_for("login"))
-    return render_template("register.html")
-
-
-@app.route("/events", methods=["GET"])
+@bp.route("/events", methods=["GET"])
 def get_events():
     """get event"""
     start = request.args.get("start")
@@ -336,7 +133,7 @@ def get_events():
         )
 
 
-@app.route("/event", methods=["POST"])
+@bp.route("/event", methods=["POST"])
 @login_required
 @admin_required
 def add_or_update_event():
@@ -364,7 +161,7 @@ def add_or_update_event():
         return jsonify({"message": "Event created successfully"}), 201
 
 
-@app.route("/event/<int:id>/delete", methods=["DELETE"])
+@bp.route("/event/<int:id>/delete", methods=["DELETE"])
 @login_required
 @admin_required
 def delete_event(id):
@@ -387,7 +184,7 @@ def delete_event(id):
         return jsonify({"error": "Failed to delete event"}), 500
 
 
-@app.route("/event/<int:id>/participants", methods=["GET", "POST"])
+@bp.route("/event/<int:id>/participants", methods=["GET", "POST"])
 @login_required
 def get_or_update_participants(id):
     """get or update participants"""
@@ -431,7 +228,7 @@ def get_or_update_participants(id):
         return jsonify({"status": status}), 201
 
 
-@app.route("/event/<int:id>/participant/<int:participant_id>", methods=["DELETE"])
+@bp.route("/event/<int:id>/participant/<int:participant_id>", methods=["DELETE"])
 @login_required
 @admin_required
 def delete_participant(id, participant_id):
@@ -449,55 +246,7 @@ def delete_participant(id, participant_id):
     )
 
 
-@app.route("/admin")
-@login_required
-@admin_required
-def admin_panel():
-    """admin panel"""
-    users = User.query.all()
-    return render_template("admin.html", users=users)
-
-
-@app.route("/admin/toggle_admin/<int:user_id>", methods=["POST"])
-@login_required
-@admin_required
-def toggle_admin(user_id):
-    """toggle adminn"""
-    user = User.query.get(user_id)
-    if user:
-        user.is_admin = not user.is_admin
-        db.session.commit()
-        flash(
-            f'ユーザー {user.username} の管理者権限を{"付与" if user.is_admin else "削除"}しました。',
-            "success",
-        )
-    else:
-        flash("ユーザーが見つかりません。", "error")
-    return redirect(url_for("admin_panel"))
-
-
-@app.route("/admin/delete_user/<int:user_id>", methods=["POST"])
-@login_required
-@admin_required
-def delete_user(user_id):
-    """delete user"""
-    user = User.query.get(user_id)
-    if user:
-        # ユーザーに関連付けられたイベントの参加者を削除
-        for event in user.events:
-            for participant in event.participants:
-                if participant.user_id == user_id:
-                    db.session.delete(participant)
-        # ユーザーを削除
-        db.session.delete(user)
-        db.session.commit()
-        flash(f"ユーザー {user.username} を削除しました。", "success")
-    else:
-        flash("ユーザーが見つかりません。", "error")
-    return redirect(url_for("admin_panel"))
-
-
-@app.route("/collect")
+@bp.route("/collect")
 @login_required
 def collect():
     """make collect list"""
@@ -518,7 +267,7 @@ def collect():
     return render_template("collect.html", events=None, selected_date=None)
 
 
-@app.route("/admin/bulk_create_events", methods=["GET", "POST"])
+@bp.route("/admin/bulk_create_events", methods=["GET", "POST"])
 @login_required
 @admin_required
 def bulk_create_events():

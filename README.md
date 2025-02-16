@@ -95,7 +95,7 @@ docker-compose exec web flask db upgrade
 - users: ユーザー情報
 - events: イベント情報
 - participants: 参加者情報
-![ER 図](static/er_diagram.png)
+![ER 図](app/static/er_diagram.png)
 
 ## トラブルシューティング
 

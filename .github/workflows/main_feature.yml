@@ -1,0 +1,44 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - feature/new-directory-type
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ $(git diff --name-only HEAD^ HEAD) ]]; then
+            echo "::set-output name=has_changes::true"
+          else
+            echo "::set-output name=has_changes::false"
+          fi
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip3 install -r requirements.txt
+          pip3 install pytest flask
+      - name: Set SQLAlchemy Database URI
+        run: |
+          echo "SQLALCHEMY_DATABASE_URI=sqlite:///:memory:" >> $GITHUB_ENV
+      - name: Run Database Migrations # マイグレーション実行ステップを追加
+        run: |
+          flask db upgrade # Flask-Migrateを使用している場合
+          # または alembic upgrade head など、使用しているマイグレーションツールに合わせて変更
+          
+      - name: Run pytest tests
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          echo "Running pytest tests..."
+          pytest
