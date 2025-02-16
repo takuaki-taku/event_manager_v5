@@ -190,12 +190,13 @@ def fetch_sheet_data():
         # Use service account credentials
         gc = gspread.service_account(filename="gspread-bulk.json")
         sh = gc.open(
-            "pickleball_schedule", folder_id="19sRblznzoxO2ntl3vW48x3AsXzBR_W7K"
+            "pickleball_schedule",
         )
         ws = sh.worksheet("シート1")
 
         # Get values from A5 to F25
         values = ws.get_values("A5:F25")
+        app.logger.info("スプレッドシートから取得したデータ: %s", values)  # ログ出力
 
         # Process the data: Skip rows that start with an empty or whitespace string
         data = [

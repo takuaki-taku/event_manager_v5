@@ -32,7 +32,7 @@
 
 1. リポジトリのクローン:
    ```bash
-   git clone https://github.com/takuaki-taku/event_manager_v4.git
+   git clone https://github.com/takuaki-taku/event_manager_v5.git
   
   ```markdown project="Event Management App" file="README.md"
 ...
@@ -78,8 +78,8 @@ docker-compose exec web flask db upgrade
 
 デフォルトの管理者アカウント:
 
-- ユーザー名: 東
-- パスワード: tennispickle
+- ユーザー名: admin
+- パスワード: admin_password
 
 
 テスト用一般ユーザーアカウント:
@@ -95,7 +95,7 @@ docker-compose exec web flask db upgrade
 - users: ユーザー情報
 - events: イベント情報
 - participants: 参加者情報
-
+![ER 図](static/er_diagram.png)
 
 ## トラブルシューティング
 
