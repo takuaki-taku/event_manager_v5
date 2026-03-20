@@ -1,6 +1,12 @@
 # ベースイメージ
 FROM python:3.13-slim
 
+# OS の依存パッケージをインストール (PostgreSQL 接続用)
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
 # 作業ディレクトリを設定
 WORKDIR /app
 
