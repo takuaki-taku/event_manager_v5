@@ -196,3 +196,7 @@ cython_debug/
 # gspread-bulk.json
 gspread-bulk.json
 
+# Database Backup Files
+*.backup
+*.backup.gz
+*.sql
