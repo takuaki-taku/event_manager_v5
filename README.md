@@ -1,139 +1,54 @@
-# イベント管理アプリケーション
+# Event Management System v5
 
-## 概要
+![Python](https://img.shields.io/badge/Python-3.13-blue) ![Flask](https://img.shields.io/badge/Flask-3.1-green) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue) ![Docker](https://img.shields.io/badge/Docker-Enabled-blue) ![Supabase](https://img.shields.io/badge/Database-Supabase-brightgreen)
 
-このアプリケーションは、イベントの作成、管理、参加者の追跡を行うためのウェブベースのツールです。Flask、SQLAlchemy、FullCalendar.js、Google Sheets APIを使用して構築されています。Docker環境で実行され、AWS EC2上にデプロイされています。
+## 概要 / Overview
+このアプリケーションは、イベントの作成、管理、参加者の追跡を行うためのフルスタックWebツールです。
+Google Sheets API との連携機能を持ち、直感的なカレンダーインターフェース（FullCalendar.js）を提供します。
 
-## 主な機能
+This is a full-stack event management tool with Google Sheets API integration and an interactive calendar interface (FullCalendar.js).
 
-- ユーザー認証システム（登録、ログイン、ログアウト）
-- イベントのCRUD操作（作成、読み取り、更新、削除）
-- インタラクティブなカレンダーインターフェース
-- イベント参加登録と参加状況の管理
-- 管理者専用機能
-- Google Sheets APIを使用したイベントの一括作成
-- 多言語対応（日本語・英語）
-- レスポンシブデザイン
+## 技術スタック / Tech Stack
+- **Backend**: Python 3.13 / Flask 3.1
+- **Database**: PostgreSQL 17 (Supabase Managed) / SQLAlchemy 2.0
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla), FullCalendar.js
+- **Infra/Deployment**: Docker, docker-compose, Render
+- **Localization**: Flask-Babel (Japanese / English)
+- **API Integration**: Google Sheets API
 
-## 技術スタック
+## 主な機能 / Features
+- **Authentication**: ユーザー認証（Flask-Login）
+- **Event Management**: カレンダー上でのイベントCRUD（作成・編集・削除）
+- **Participant Tracking**: 参加ステータス管理
+- **Google Sheets Sync**: スプレッドシートからのイベント一括取り込み
+- **Admin Dashboard**: 管理者によるユーザー・イベント管理
+- **Responsive Design**: モバイル・デスクトップ両対応
 
-- バックエンド: Python/Flask
-- データベース: PostgreSQL
-- フロントエンド: HTML, CSS, JavaScript, FullCalendar.js
-- コンテナ化: Docker, docker-compose
-- デプロイ: AWS EC2
-- API統合: Google Sheets API
-- 認証: Flask-Login
-- 多言語対応: Flask-Babel
+## データベース構造 / Database Schema
+![ER図](app/static/er_diagram.png)
 
-## セットアップ手順
+## デモ用アカウント / Demo Accounts
+- **管理者 (Admin)**: `admin` / `admin_password`
+- **一般ユーザー (User)**: `sample` / `sample`
 
-### Dockerを使用した開発環境のセットアップ
+## クラウドデプロイ / Cloud Deployment
+本リポジトリは Render に最適化されています。以下の手順でデプロイ可能です。
+1. GitHub リポジトリを Render に連携。
+2. 環境変数 `DATABASE_URL` (Supabase URI) と `SECRET_KEY` を設定。
+3. `Dockerfile` に基づいて自動ビルド・デプロイされます。
 
-1. リポジトリのクローン:
-   ```bash
-   git clone https://github.com/takuaki-taku/event_manager_v5.git
-  
-  ```markdown project="Event Management App" file="README.md"
-...
-```
+## ローカル開発環境のセットアップ / Local Setup
+```bash
+# 1. Clone
+git clone https://github.com/takuaki-taku/event_manager_v5.git
+cd event_manager_v5
 
+# 2. Environment Variables (.env)
+# Create .env file with DATABASE_URL and SECRET_KEY
 
-2. 環境変数の設定:
-
-1. `.env`ファイルを作成し、以下の変数を設定:
-  以下は例です。
-
-
-```plaintext
-SECRET_KEY=your_secret_key
-DATABASE_URL=postgresql://username:password@db:5432/dbname
-GOOGLE_SHEETS_CREDENTIALS=your_credentials_json
-```
-
-
-3. Dockerコンテナの起動:
-
-```shellscript
+# 3. Docker Start
 docker-compose up --build
 ```
 
-
-4. データベースのマイグレーション:
-
-```shellscript
-docker-compose exec web flask db upgrade
-```
-
-
-### Google Sheets API設定
-
-1. Google Cloud Consoleで新しいプロジェクトを作成
-2. Google Sheets APIを有効化
-3. サービスアカウントを作成しJSONキーをダウンロード
-4. 環境変数`GOOGLE_SHEETS_CREDENTIALS`にJSONキーの内容を設定
-
-
-## 管理者アカウント
-
-デフォルトの管理者アカウント:
-
-- ユーザー名: admin
-- パスワード: admin_password
-
-
-テスト用一般ユーザーアカウント:
-
-- ユーザー名: sample
-- パスワード: sample
-
-
-## データベース構造
-
-主要なテーブル:
-
-- users: ユーザー情報
-- events: イベント情報
-- participants: 参加者情報
-![ER 図](app/static/er_diagram.png)
-
-## トラブルシューティング
-
-一般的な問題と解決方法:
-
-1. データベース接続エラー:
-
-1. 環境変数`DATABASE_URL`が正しく設定されているか確認
-2. PostgreSQLコンテナが実行中か確認
-
-
-
-2. Google Sheets API接続エラー:
-
-1. 認証情報が正しく設定されているか確認
-2. APIが有効化されているか確認
-
-
-
-## 貢献ガイドライン
-
-1. Issueの作成
-2. ブランチの作成（feature/fix）
-3. 変更の実装
-4. テストの実行
-5. プルリクエストの作成
-
-
-## ライセンス
-
+## ライセンス / License
 MIT License
-
-## サポート
-
-問題や質問がある場合は、以下の連絡先までご連絡ください：
-
-- Email: [tatennisku@gmail.com](mailto:tatennisku@gmail.com)
-- GitHub Issues
-
-
-  

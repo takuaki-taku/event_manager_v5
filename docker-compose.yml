@@ -5,7 +5,22 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5001:5000"  # ホストとコンテナのポートをバインド
+      - "5001:5000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17
     environment:
-      DATABASE_URL: "postgresql://postgres.tgmneqdmlonphkxynlmj:wYrdam-bubkyd-0napni@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
-      SECRET_KEY: "dpMHadKC23Wt2mG1YKHcSXc5JasG3LOgDpYWqHvztv4="
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

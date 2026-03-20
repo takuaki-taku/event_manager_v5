@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: event-manager-v5
+    env: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Renderのダッシュボードで設定
+      - key: SECRET_KEY
+        sync: false # Renderのダッシュボードで設定
+      - key: GOOGLE_SHEETS_CREDENTIALS
+        sync: false # Google Sheets連携を使う場合に設定
+    autoDeploy: true
