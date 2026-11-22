@@ -1,4 +1,3 @@
-
 services:
   web:
     build:
@@ -8,10 +7,11 @@ services:
       - "127.0.0.1:5001:5000"
     env_file:
       - .env
-    depends_on:
-      - db
 
+  # ローカル開発専用。本番は Supabase に接続するため起動しない
   db:
+    profiles:
+      - local
     image: postgres:17
     environment:
       POSTGRES_USER: postgres
