@@ -16,7 +16,6 @@ babel = Babel()
 def create_app():
     app = Flask(__name__)
     app.config.from_object("config.Config")
-    app.config["SECRET_KEY"] = "your_secret_key"  # 必ず適切な秘密鍵に置き換えてください
     app.config["SESSION_TYPE"] = (
         "filesystem"  # 開発用。本番環境では'redis'か'memcached'に変更
     )
