@@ -29,3 +29,9 @@ CREATE TABLE IF NOT EXISTS participant (
     user_id INTEGER REFERENCES "user"(id) NOT NULL,
     status VARCHAR(20) DEFAULT '未定'
 );
+
+-- Supabase Security Advisor (rls_disabled_in_public) 対策:
+-- public スキーマのテーブルには RLS を有効化する
+ALTER TABLE "user" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE event ENABLE ROW LEVEL SECURITY;
+ALTER TABLE participant ENABLE ROW LEVEL SECURITY;
